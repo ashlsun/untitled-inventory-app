@@ -1,2 +1,7 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import StoragePlace from './StoragePlace.svelte';
+</script>
+
+<div class="flex w-full">
+	<StoragePlace name="fridge" />
+</div>
