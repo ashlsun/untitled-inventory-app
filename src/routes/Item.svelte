@@ -9,12 +9,12 @@
 		relativeTime: {
 			future: '%s',
 			past: '%s',
-			s: 'just now',
-			m: 'just now',
-			mm: 'just now',
-			h: 'today',
-			hh: 'today',
-			d: 'yesterday',
+			s: 'now',
+			m: 'now',
+			mm: 'now',
+			h: '1h',
+			hh: '%dh',
+			d: '1d',
 			dd: '%dd',
 			M: '1mo',
 			MM: '%dmo',
@@ -47,7 +47,7 @@
 	}
 
 	let editingName = false;
-
+	let draftName = item.name;
 	let childrenDiv: HTMLDivElement;
 	let height = '0';
 	let open = false;
@@ -60,7 +60,22 @@
 
 	function handleKeyDownOnName(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
+			item.name = draftName;
 			editingName = false;
+			itemNameInput.blur();
+		} else if (event.key === 'Escape') {
+			draftName = item.name;
+			editingName = false;
+			itemNameInput.blur();
+		} else if (
+			// enforce 20 character maximum
+			// TODO: truncate pasting
+			draftName.length > 18 &&
+			event.key !== 'Backspace' &&
+			event.key !== 'Delete' &&
+			!document.getSelection()?.toString()
+		) {
+			event.preventDefault();
 		}
 	}
 
@@ -118,18 +133,17 @@
 
 			<span
 				bind:this={itemNameInput}
+				bind:textContent={draftName}
 				role="textbox"
 				tabindex="-1"
-				contenteditable={editingName}
+				contenteditable
 				on:keydown|stopPropagation={handleKeyDownOnName}
 				on:click={() => {
 					editingName = true;
 				}}
-				on:keydown={() => {
-					editingName = true;
-				}}
 				class="focus:outline-none {editingName &&
-					'underline'} decoration-1 underline-offset-2 rounded-sm max-w-fit">{item.name}</span
+					'underline'} decoration-1 underline-offset-2 rounded-sm max-w-5 truncate"
+				>{editingName ? draftName : item.name}</span
 			>
 		</span>
 

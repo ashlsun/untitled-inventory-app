@@ -74,6 +74,7 @@
 		class="border border-black mt-5 px-1 rounded-sm outline-emerald-600 transition placeholder:text-stone-400"
 		value={newItem}
 		on:keypress={handleInputKeypress}
+		maxlength="20"
 	/>
 	<button class="hover:text-emerald-700 hover:font-bold transition" on:click={addNewItem}>+</button>
 </div>
