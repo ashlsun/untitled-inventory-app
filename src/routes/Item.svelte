@@ -53,7 +53,11 @@
 	let height = '0';
 	let open = false;
 
+	let dateAddedInput: HTMLInputElement;
+	let shelfLifeInput: HTMLInputElement;
+
 	let draftShelfLife = item.daysToSpoil;
+	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
 
 	$: if (open) {
 		height = String(childrenDiv.scrollHeight + 1);
@@ -108,9 +112,17 @@
 		}
 	}
 
-	function handleDateAddedChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		dispatch('changeDateAdded', target.value);
+	function updateDateAdded() {
+		dispatch('changeDateAdded', draftDateAdded);
+	}
+
+	function handleDateAddedKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			updateDateAdded();
+		} else if (event.key === 'Escape') {
+			draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+			dateAddedInput.blur();
+		}
 	}
 </script>
 
@@ -183,21 +195,25 @@
 		<div>
 			Edit date added:
 			<input
-				class="border border-dashed border-stone-400 border-1 my-1 px-1 rounded-sm"
+				bind:this={dateAddedInput}
 				type="date"
-				on:keydown|stopPropagation
-				value={item.dateAdded.format('YYYY-MM-DD')}
-				on:change={handleDateAddedChange}
+				class="border border-dashed border-stone-400 border-1 my-1 px-1 rounded-sm"
+				bind:value={draftDateAdded}
+				on:keydown|stopPropagation={handleDateAddedKeydown}
+				on:dblclick|stopPropagation
+				on:blur={updateDateAdded}
 			/>
 		</div>
 		<div>
 			Edit shelf life:
 			<input
+				bind:this={shelfLifeInput}
 				type="number"
+				class="max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
 				bind:value={draftShelfLife}
 				on:keydown|stopPropagation
+				on:dblclick|stopPropagation
 				on:blur={() => (item.daysToSpoil = draftShelfLife)}
-				class="max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
 			/>
 			days
 		</div>
