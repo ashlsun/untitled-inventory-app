@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { IconTemperatureSnow } from '@tabler/icons-svelte';
 	import dayjs, { type Dayjs } from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
