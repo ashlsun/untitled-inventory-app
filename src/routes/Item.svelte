@@ -17,7 +17,7 @@
 			d: 'yesterday',
 			dd: '%dd',
 			M: '1mo',
-			MM: '%dmos',
+			MM: '%dmo',
 			y: '1yr',
 			yy: '%dyrs'
 		}
@@ -37,17 +37,38 @@
 	export let selected: boolean;
 	let itemDiv: HTMLDivElement;
 
-	$: if (selected) {
-		itemDiv.focus();
+	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+	$: {
+		daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+		if (selected) {
+			itemDiv.focus();
+		}
 	}
 
-	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+	let editingName = false;
+
+	let childrenDiv: HTMLDivElement;
+	let height = '0';
+	let open = false;
+
+	$: if (open) {
+		height = String(childrenDiv.scrollHeight + 1);
+	} else {
+		height = '0';
+	}
+
+	function handleKeyDownOnName(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			editingName = false;
+		}
+	}
 
 	function handleKeyPressOnItem(event: KeyboardEvent, itemId: string) {
 		if (event.key === 'Delete' || event.key === 'Backspace') {
-			deleteItem(itemId);
+			open = false;
+			setTimeout(() => deleteItem(itemId), 50);
 		} else if (event.key === 'Enter') {
-			console.log('expand');
+			open = !open;
 		} else if (event.key === 'ArrowUp') {
 			dispatch('up');
 		} else if (event.key === 'ArrowDown') {
@@ -63,37 +84,105 @@
 			console.log(event);
 		}
 	}
+
+	function handleDateAddedChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		dispatch('changeDateAdded', target.value);
+	}
 </script>
 
 <div
 	bind:this={itemDiv}
 	id={item.id}
-	class="flex justify-between px-1 focus:bg-yellow-200 focus:outline-none transition font-bold"
+	class="rounded-sm px-2 {selected
+		? 'bg-yellow-200'
+		: open
+			? 'outline-1 outline outline-[#e5e3ef] my-1'
+			: ''}  focus:outline-none transition transition-margin font-bold {open ? 'pb-2' : ''}"
 	on:focus={() => dispatch('selected')}
 	tabindex="-1"
 	role="tree"
 	on:keydown={(event) => handleKeyPressOnItem(event, item.id)}
+	on:dblclick={() => {
+		open = !open;
+	}}
 >
-	{item.quantity}
+	<div class="flex justify-between">
+		<span>
+			{item.quantity}
 
-	{item.name}
-
-	<span>
-		<span
-			class="italic text-stone-400 mix-blend-multiply {daysTilSpoil < 1
-				? 'text-red-600'
-				: daysTilSpoil < 2
-					? 'text-orange-600'
-					: daysTilSpoil < 3
-						? 'text-yellow-600'
-						: ''}">{item.dateAdded.fromNow()}</span
-		>
-		<button
-			class="items-end hover:text-red-600 transition"
-			on:click={() => {
-				deleteItem(item.id);
-			}}
-			>delete
-		</button>
-	</span>
+			{#if editingName}
+				<span
+					role="textbox"
+					tabindex="-1"
+					contenteditable
+					on:keydown|stopPropagation={handleKeyDownOnName}
+					class="focus:outline-none focus:underline decoration-1 underline-offset-2 rounded-sm max-w-fit"
+					>{item.name}</span
+				>
+			{:else}
+				<button
+					class="cursor-text"
+					tabindex="-1"
+					on:click={() => {
+						editingName = true;
+					}}
+					on:keydown={() => {
+						editingName = true;
+					}}
+				>
+					{item.name}
+				</button>
+			{/if}
+		</span>
+		<span>
+			<span
+				class="itali mix-blend-multiply {daysTilSpoil < 1
+					? 'text-red-500'
+					: daysTilSpoil < 2
+						? 'text-orange-500'
+						: daysTilSpoil < 3
+							? 'text-yellow-500'
+							: ' text-stone-400'}">{item.dateAdded.fromNow()}</span
+			>
+			<button
+				class="items-end hover:text-red-600 transition"
+				on:click={() => {
+					deleteItem(item.id);
+				}}
+				>delete
+			</button>
+		</span>
+	</div>
+	<div
+		bind:this={childrenDiv}
+		role="treeitem"
+		aria-selected="false"
+		class="text-sm px-2 overflow-y-hidden bg-[#f3f1fd] mix-blend-multiply {open
+			? 'border-stone-400 border-dashed rounded-sm'
+			: ''}"
+		style="transition: all 0.1s ease-in-out; height: {open
+			? childrenDiv.scrollHeight + 1 + 'px'
+			: '0px'};"
+	>
+		<div>
+			Edit date added:
+			<input
+				class="border border-dashed border-stone-400 border-1 my-1 px-1 rounded-sm"
+				type="date"
+				on:keydown|stopPropagation
+				value={item.dateAdded.format('YYYY-MM-DD')}
+				on:change={handleDateAddedChange}
+			/>
+		</div>
+		<div>
+			Edit shelf life:
+			<input
+				bind:value={item.daysToSpoil}
+				on:keydown|stopPropagation
+				class="w-5 mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
+			/>
+			days
+		</div>
+	</div>
 </div>
