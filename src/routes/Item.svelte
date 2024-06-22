@@ -9,15 +9,15 @@
 		relativeTime: {
 			future: '%s',
 			past: '%s',
-			s: 'just now',
-			m: 'just now',
-			mm: 'just now',
-			h: 'today',
-			hh: 'today',
-			d: 'yesterday',
+			s: 'now',
+			m: 'now',
+			mm: 'now',
+			h: '1h',
+			hh: '%dh',
+			d: '1d',
 			dd: '%dd',
 			M: '1mo',
-			MM: '%dmos',
+			MM: '%dmo',
 			y: '1yr',
 			yy: '%dyrs'
 		}
@@ -36,18 +36,65 @@
 	export let deleteItem: (itemId: string) => void;
 	export let selected: boolean;
 	let itemDiv: HTMLDivElement;
-
-	$: if (selected) {
-		itemDiv.focus();
-	}
+	let itemNameInput: HTMLSpanElement;
 
 	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+	$: {
+		daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+		if (selected) {
+			itemDiv.focus();
+		}
+	}
+
+	let editingName = false;
+	let draftName = item.name;
+	let childrenDiv: HTMLDivElement;
+	let height = '0';
+	let open = false;
+
+	let dateAddedInput: HTMLInputElement;
+	let shelfLifeInput: HTMLInputElement;
+
+	let draftShelfLife = item.daysToSpoil;
+	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+
+	$: if (open) {
+		height = String(childrenDiv.scrollHeight + 1);
+	} else {
+		height = '0';
+	}
+
+	function handleKeyDownOnName(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			item.name = draftName;
+			editingName = false;
+			itemNameInput.blur();
+		} else if (event.key === 'Escape') {
+			draftName = item.name;
+			editingName = false;
+			itemNameInput.blur();
+		} else if (
+			// enforce 20 character maximum
+			// TODO: truncate pasting
+			draftName.length > 18 &&
+			event.key !== 'Backspace' &&
+			event.key !== 'Delete' &&
+			!document.getSelection()?.toString()
+		) {
+			event.preventDefault();
+		}
+	}
 
 	function handleKeyPressOnItem(event: KeyboardEvent, itemId: string) {
 		if (event.key === 'Delete' || event.key === 'Backspace') {
-			deleteItem(itemId);
+			if (open) {
+				open = false;
+				setTimeout(() => deleteItem(itemId), 70);
+			} else {
+				deleteItem(itemId);
+			}
 		} else if (event.key === 'Enter') {
-			console.log('expand');
+			open = !open;
 		} else if (event.key === 'ArrowUp') {
 			dispatch('up');
 		} else if (event.key === 'ArrowDown') {
@@ -63,37 +110,111 @@
 			console.log(event);
 		}
 	}
+
+	function updateDateAdded() {
+		dispatch('changeDateAdded', draftDateAdded);
+	}
+
+	function handleDateAddedKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			updateDateAdded();
+		} else if (event.key === 'Escape') {
+			draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+			dateAddedInput.blur();
+		}
+	}
 </script>
 
 <div
 	bind:this={itemDiv}
 	id={item.id}
-	class="flex justify-between px-1 focus:bg-yellow-200 focus:outline-none transition font-bold"
+	class="rounded-sm px-2 {selected
+		? 'bg-yellow-200'
+		: open
+			? 'outline-1 outline outline-[#e5e3ef] my-1'
+			: ''}  focus:outline-none transition transition-margin font-bold {open ? 'pb-2' : ''}"
 	on:focus={() => dispatch('selected')}
 	tabindex="-1"
 	role="tree"
 	on:keydown={(event) => handleKeyPressOnItem(event, item.id)}
+	on:dblclick={() => {
+		open = !open;
+	}}
 >
-	{item.quantity}
+	<div class="flex justify-between">
+		<span>
+			{item.quantity}
 
-	{item.name}
+			<span
+				bind:this={itemNameInput}
+				bind:textContent={draftName}
+				role="textbox"
+				tabindex="-1"
+				contenteditable
+				on:keydown|stopPropagation={handleKeyDownOnName}
+				on:click={() => {
+					editingName = true;
+				}}
+				class="focus:outline-none {editingName &&
+					'underline'} decoration-1 underline-offset-2 rounded-sm max-w-5 truncate"
+				>{editingName ? draftName : item.name}</span
+			>
+		</span>
 
-	<span>
-		<span
-			class="italic text-stone-400 mix-blend-multiply {daysTilSpoil < 1
-				? 'text-red-600'
-				: daysTilSpoil < 2
-					? 'text-orange-600'
-					: daysTilSpoil < 3
-						? 'text-yellow-600'
-						: ''}">{item.dateAdded.fromNow()}</span
-		>
-		<button
-			class="items-end hover:text-red-600 transition"
-			on:click={() => {
-				deleteItem(item.id);
-			}}
-			>delete
-		</button>
-	</span>
+		<span>
+			<span
+				class="italic mix-blend-multiply {daysTilSpoil < 1
+					? 'text-red-500'
+					: daysTilSpoil < 2
+						? 'text-orange-500'
+						: daysTilSpoil < 3
+							? 'text-yellow-500'
+							: ' text-stone-400'}">{item.dateAdded.fromNow()}</span
+			>
+			<button
+				class="items-end hover:text-red-600 transition"
+				on:click={() => {
+					deleteItem(item.id);
+				}}
+				>delete
+			</button>
+		</span>
+	</div>
+	<div
+		bind:this={childrenDiv}
+		role="treeitem"
+		aria-selected="false"
+		class="text-sm px-2 overflow-y-hidden bg-[#f3f1fd] mix-blend-multiply {open
+			? 'border-stone-400 border-dashed rounded-sm'
+			: ''}"
+		style="transition: all 0.1s ease-in-out; height: {open
+			? childrenDiv.scrollHeight + 1 + 'px'
+			: '0px'};"
+	>
+		<div>
+			Edit date added:
+			<input
+				bind:this={dateAddedInput}
+				type="date"
+				class="border border-dashed border-stone-400 border-1 my-1 px-1 rounded-sm"
+				bind:value={draftDateAdded}
+				on:keydown|stopPropagation={handleDateAddedKeydown}
+				on:dblclick|stopPropagation
+				on:blur={updateDateAdded}
+			/>
+		</div>
+		<div>
+			Edit shelf life:
+			<input
+				bind:this={shelfLifeInput}
+				type="number"
+				class="max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
+				bind:value={draftShelfLife}
+				on:keydown|stopPropagation
+				on:dblclick|stopPropagation
+				on:blur={() => (item.daysToSpoil = draftShelfLife)}
+			/>
+			days
+		</div>
+	</div>
 </div>

@@ -48,7 +48,12 @@ html {
     background-color: rgb(255, 255, 248);
 }
 
-b,
-strong {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', 'Arial', sans-serif;
+
+input {
+    mix-blend-mode: multiply;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    opacity: 1;
 }
