@@ -14,7 +14,7 @@
 }
 
 @font-face {
-    font-family: 'Hershey-Noailles-Futura-Duplex';
+    font-family: 'Hershey-Noailles-Futura-Duplex-Bold';
     font-style: bold;
     font-weight: 700;
     src: url('/Hershey-Noailles-Futura-Duplex-Bold.ttf');
@@ -36,8 +36,9 @@ em {
     font-style: normal;
 }
 
+b,
 strong {
-    font-family: 'UbuntuBold', arial, sans-serif;
+    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', arial, sans-serif;
     font-weight: normal;
     font-style: normal;
 }
