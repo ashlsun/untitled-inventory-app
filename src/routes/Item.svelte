@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { IconTemperatureSnow } from '@tabler/icons-svelte';
 	import dayjs, { type Dayjs } from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
@@ -51,6 +52,8 @@
 	let childrenDiv: HTMLDivElement;
 	let height = '0';
 	let open = false;
+
+	let draftShelfLife = item.daysToSpoil;
 
 	$: if (open) {
 		height = String(childrenDiv.scrollHeight + 1);
@@ -190,9 +193,11 @@
 		<div>
 			Edit shelf life:
 			<input
-				bind:value={item.daysToSpoil}
+				type="number"
+				bind:value={draftShelfLife}
 				on:keydown|stopPropagation
-				class="w-5 mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
+				on:blur={() => (item.daysToSpoil = draftShelfLife)}
+				class="max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
 			/>
 			days
 		</div>
