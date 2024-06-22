@@ -36,6 +36,7 @@
 	export let deleteItem: (itemId: string) => void;
 	export let selected: boolean;
 	let itemDiv: HTMLDivElement;
+	let itemNameInput: HTMLSpanElement;
 
 	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
 	$: {
@@ -65,8 +66,12 @@
 
 	function handleKeyPressOnItem(event: KeyboardEvent, itemId: string) {
 		if (event.key === 'Delete' || event.key === 'Backspace') {
-			open = false;
-			setTimeout(() => deleteItem(itemId), 50);
+			if (open) {
+				open = false;
+				setTimeout(() => deleteItem(itemId), 70);
+			} else {
+				deleteItem(itemId);
+			}
 		} else if (event.key === 'Enter') {
 			open = !open;
 		} else if (event.key === 'ArrowUp') {
@@ -111,33 +116,26 @@
 		<span>
 			{item.quantity}
 
-			{#if editingName}
-				<span
-					role="textbox"
-					tabindex="-1"
-					contenteditable
-					on:keydown|stopPropagation={handleKeyDownOnName}
-					class="focus:outline-none focus:underline decoration-1 underline-offset-2 rounded-sm max-w-fit"
-					>{item.name}</span
-				>
-			{:else}
-				<button
-					class="cursor-text"
-					tabindex="-1"
-					on:click={() => {
-						editingName = true;
-					}}
-					on:keydown={() => {
-						editingName = true;
-					}}
-				>
-					{item.name}
-				</button>
-			{/if}
+			<span
+				bind:this={itemNameInput}
+				role="textbox"
+				tabindex="-1"
+				contenteditable={editingName}
+				on:keydown|stopPropagation={handleKeyDownOnName}
+				on:click={() => {
+					editingName = true;
+				}}
+				on:keydown={() => {
+					editingName = true;
+				}}
+				class="focus:outline-none {editingName &&
+					'underline'} decoration-1 underline-offset-2 rounded-sm max-w-fit">{item.name}</span
+			>
 		</span>
+
 		<span>
 			<span
-				class="itali mix-blend-multiply {daysTilSpoil < 1
+				class="italic mix-blend-multiply {daysTilSpoil < 1
 					? 'text-red-500'
 					: daysTilSpoil < 2
 						? 'text-orange-500'
