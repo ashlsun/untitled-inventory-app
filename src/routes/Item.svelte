@@ -132,13 +132,21 @@
 		? 'bg-yellow-200'
 		: open
 			? 'outline-1 outline outline-[#e5e3ef] my-1'
-			: ''}  focus:outline-none transition transition-margin font-bold {open ? 'pb-2' : ''}"
+			: ''}  focus:outline-none transition transition-margin font-bold {open
+		? 'pb-2'
+		: ''} select-none"
 	on:focus={() => dispatch('selected')}
 	tabindex="-1"
 	role="tree"
 	on:keydown={(event) => handleKeyPressOnItem(event, item.id)}
 	on:dblclick={() => {
 		open = !open;
+	}}
+	on:click={(event) => {
+		// to remove the caret/selection inserted at itemNameInput
+		if (event.target !== itemNameInput) {
+			itemNameInput.blur();
+		}
 	}}
 >
 	<div class="flex justify-between">
