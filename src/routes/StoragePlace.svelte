@@ -22,10 +22,25 @@
 	function addNewItem() {
 		if (newItem === '') return;
 
-		items = [
-			...items,
-			{ id: uuid(), dateAdded: dayjs(), name: newItem, quantity: 1, daysToSpoil: 5 }
-		];
+		const newItemList = newItem.split(' ');
+		if (newItemList.length > 1 && newItemList[0].match(/^\d+$/)) {
+			items = [
+				...items,
+				{
+					id: uuid(),
+					dateAdded: dayjs(),
+					name: newItem.slice(newItemList[0].length).trim(),
+					quantity: Number(newItemList[0]),
+					daysToSpoil: 5
+				}
+			];
+		} else {
+			items = [
+				...items,
+				{ id: uuid(), dateAdded: dayjs(), name: newItem, quantity: 1, daysToSpoil: 5 }
+			];
+		}
+
 		newItem = '';
 		selectedIndex = items.length;
 	}
