@@ -43,6 +43,8 @@
 		daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
 		if (selected) {
 			itemDiv.focus();
+		} else {
+			open = false;
 		}
 	}
 
