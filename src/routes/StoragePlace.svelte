@@ -20,6 +20,8 @@
 		newItem = target.value;
 	}
 	function addNewItem() {
+		if (newItem === '') return;
+
 		items = [
 			...items,
 			{ id: uuid(), dateAdded: dayjs(), name: newItem, quantity: 1, daysToSpoil: 5 }
