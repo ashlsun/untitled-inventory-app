@@ -143,7 +143,7 @@
 		open = !open;
 	}}
 	on:click={(event) => {
-		// to prevent the caret from being inserted at the end of the itemNameInput
+		// to remove the caret/selection inserted at itemNameInput
 		if (event.target !== itemNameInput) {
 			itemNameInput.blur();
 		}
