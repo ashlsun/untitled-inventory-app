@@ -134,9 +134,7 @@
 		? 'bg-yellow-200'
 		: open
 			? 'outline-1 outline outline-[#e5e3ef] my-1'
-			: ''}  focus:outline-none transition transition-margin font-bold {open
-		? 'pb-2'
-		: ''} select-none"
+			: ''}  focus:outline-none transition transition-margin {open ? 'pb-2' : ''} select-none"
 	on:focus={() => dispatch('selected')}
 	tabindex="-1"
 	role="tree"
