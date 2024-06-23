@@ -150,6 +150,10 @@
 			itemNameInput.blur();
 		}
 	}}
+	on:blur={() => {
+		draftName = item.name;
+		editingName = false;
+	}}
 >
 	<div class="flex justify-between">
 		<span>
