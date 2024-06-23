@@ -2,7 +2,12 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			transitionProperty: {
+				height: 'height, max-height',
+				margin: 'margin'
+			}
+		}
 	},
 	plugins: []
 };

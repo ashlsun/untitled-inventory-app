@@ -20,6 +20,8 @@
 		newItem = target.value;
 	}
 	function addNewItem() {
+		if (newItem === '') return;
+
 		items = [
 			...items,
 			{ id: uuid(), dateAdded: dayjs(), name: newItem, quantity: 1, daysToSpoil: 5 }
@@ -57,6 +59,13 @@
 			on:down={() => {
 				setSelectedIndex(i + 1);
 			}}
+			on:changeDateAdded={(event) => {
+				try {
+					item.dateAdded = dayjs(event.detail);
+				} catch {
+					console.log('ok');
+				}
+			}}
 		/>
 	{/each}
 	{#if items.length === 0}
@@ -64,9 +73,10 @@
 	{/if}
 
 	<input
-		class="border border-black mt-5 px-1 rounded-sm bg-[#FFFFF8] outline-emerald-600 transition placeholder:text-stone-400"
+		class="border border-black mt-5 px-1 rounded-sm outline-emerald-600 transition placeholder:text-stone-400"
 		value={newItem}
 		on:keypress={handleInputKeypress}
+		maxlength="20"
 	/>
 	<button class="hover:text-emerald-700 hover:font-bold transition" on:click={addNewItem}>+</button>
 </div>

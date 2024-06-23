@@ -14,7 +14,7 @@
 }
 
 @font-face {
-    font-family: 'Hershey-Noailles-Futura-Duplex';
+    font-family: 'Hershey-Noailles-Futura-Duplex-Bold';
     font-style: bold;
     font-weight: 700;
     src: url('/Hershey-Noailles-Futura-Duplex-Bold.ttf');
@@ -36,19 +36,25 @@ em {
     font-style: normal;
 }
 
+b,
 strong {
-    font-family: 'UbuntuBold', arial, sans-serif;
+    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', 'Hershey-Noailles-Futura-Duplex', arial, sans-serif;
     font-weight: normal;
     font-style: normal;
 }
 
 
 html {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Regular', 'Arial', sans-serif;
+    font-family: 'Hershey-Noailles-Futura-Duplex', 'Arial', sans-serif;
     background-color: rgb(255, 255, 248);
 }
 
-b,
-strong {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', 'Arial', sans-serif;
+
+input {
+    mix-blend-mode: multiply;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    opacity: 1;
 }
