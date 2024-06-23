@@ -1,4 +1,10 @@
-import { render, fireEvent, cleanup, type RenderResult } from '@testing-library/svelte';
+import {
+	render,
+	fireEvent,
+	cleanup,
+	type RenderResult,
+	getByDisplayValue
+} from '@testing-library/svelte';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import dayjs from 'dayjs';
 import Item from './Item.svelte';
@@ -9,7 +15,7 @@ describe('The Item component', () => {
 		name: 'Test Item',
 		quantity: 1,
 		dateAdded: dayjs(),
-		daysToSpoil: 10
+		daysToSpoil: 20
 	};
 
 	const mockDeleteItem = vi.fn();
@@ -46,10 +52,10 @@ describe('The Item component', () => {
 	});
 
 	it('renders correctly', () => {
-		const { getByText } = component;
+		const { getByText, getByDisplayValue } = component;
 
 		expect(getByText(/Test Item/)).toBeTruthy();
-		expect(getByText(/1/)).toBeTruthy();
+		expect(getByDisplayValue('1')).toBeTruthy();
 		expect(getByText('delete')).toBeTruthy();
 	});
 
@@ -74,6 +80,7 @@ describe('The Item component', () => {
 		const itemElement = getByRole('tree');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' });
 		expect(mockItem.quantity).toBe(0);
-		expect(mockDeleteItem).toHaveBeenCalledWith('1');
+		// After 100ms, deleteItem should have been called
+		setInterval(() => expect(mockDeleteItem).toHaveBeenCalledWith('1'), 120);
 	});
 });

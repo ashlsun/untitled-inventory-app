@@ -54,7 +54,7 @@ input {
     mix-blend-mode: multiply;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+input.always-display-spinner[type=number]::-webkit-inner-spin-button,
+input.always-display-spinner[type=number]::-webkit-outer-spin-button {
     opacity: 1;
 }
