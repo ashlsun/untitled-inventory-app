@@ -38,14 +38,14 @@ em {
 
 b,
 strong {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', arial, sans-serif;
+    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', 'Hershey-Noailles-Futura-Duplex', arial, sans-serif;
     font-weight: normal;
     font-style: normal;
 }
 
 
 html {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Regular', 'Arial', sans-serif;
+    font-family: 'Hershey-Noailles-Futura-Duplex', 'Arial', sans-serif;
     background-color: rgb(255, 255, 248);
 }
 
@@ -54,7 +54,7 @@ input {
     mix-blend-mode: multiply;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+input.always-display-spinner[type=number]::-webkit-inner-spin-button,
+input.always-display-spinner[type=number]::-webkit-outer-spin-button {
     opacity: 1;
 }
