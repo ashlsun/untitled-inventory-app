@@ -37,6 +37,7 @@
 	export let selected: boolean;
 	let itemDiv: HTMLDivElement;
 	let itemNameInput: HTMLSpanElement;
+	let itemQuantityInput: HTMLInputElement;
 
 	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
 	$: {
@@ -106,7 +107,7 @@
 		} else if (event.key === 'ArrowLeft') {
 			item.quantity--;
 			if (item.quantity === 0) {
-				deleteItem(itemId);
+				setTimeout(() => deleteItem(item.id), 100);
 			}
 		} else {
 			console.log(event);
@@ -125,12 +126,23 @@
 			dateAddedInput.blur();
 		}
 	}
+
+	function handleQuantityInputChange(event: Event) {
+		let target = event.target as HTMLInputElement;
+		if (target.value === '0') {
+			setTimeout(() => deleteItem(item.id), 100);
+		}
+		if (target.value === '') {
+			target.value = '0';
+			setTimeout(() => deleteItem(item.id), 300);
+		}
+	}
 </script>
 
 <div
 	bind:this={itemDiv}
 	id={item.id}
-	class="rounded-sm px-2 {selected
+	class="rounded-sm px-2 pt-[0.5px] {selected
 		? 'bg-yellow-200'
 		: open
 			? 'outline-1 outline outline-[#e5e3ef] my-1'
@@ -151,7 +163,17 @@
 >
 	<div class="flex justify-between">
 		<span>
-			{item.quantity}
+			<input
+				bind:this={itemQuantityInput}
+				bind:value={item.quantity}
+				type="number"
+				min="0"
+				max="99"
+				class="stealth text-center max-w-12 focus:outline-none focus:underline underline-offset-1 decoration-1"
+				on:keydown|stopPropagation
+				on:dblclick|stopPropagation
+				on:change={handleQuantityInputChange}
+			/>
 
 			<span
 				bind:this={itemNameInput}
@@ -164,7 +186,7 @@
 					editingName = true;
 				}}
 				class="focus:outline-none {editingName &&
-					'underline'} decoration-1 underline-offset-2 rounded-sm max-w-5 truncate"
+					'underline'} decoration-1 underline-offset-2 rounded-sm"
 				>{editingName ? draftName : item.name}</span
 			>
 		</span>
@@ -192,7 +214,7 @@
 		bind:this={childrenDiv}
 		role="treeitem"
 		aria-selected="false"
-		class="text-sm px-2 overflow-y-hidden bg-[#f3f1fd] mix-blend-multiply {open
+		class="text-sm px-3 overflow-y-hidden bg-[#f3f1fd] mix-blend-multiply {open
 			? 'border-stone-400 border-dashed rounded-sm'
 			: ''}"
 		style="transition: all 0.1s ease-in-out; height: {open
@@ -216,7 +238,7 @@
 			<input
 				bind:this={shelfLifeInput}
 				type="number"
-				class="max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
+				class="always-display-spinner max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
 				bind:value={draftShelfLife}
 				on:keydown|stopPropagation
 				on:dblclick|stopPropagation
