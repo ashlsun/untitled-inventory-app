@@ -145,8 +145,8 @@
 	class="rounded-sm px-2 pt-[0.5px] {selected
 		? 'bg-yellow-200'
 		: open
-			? 'outline-1 outline outline-[#e5e3ef] my-1'
-			: ''}  focus:outline-none transition transition-margin {open ? 'pb-2' : ''} select-none"
+			? 'my-1 outline outline-1 outline-[#e5e3ef]'
+			: ''}  transition transition-margin focus:outline-none {open ? 'pb-2' : ''} select-none"
 	on:focus={() => dispatch('selected')}
 	tabindex="-1"
 	role="tree"
@@ -173,7 +173,7 @@
 				type="number"
 				min="0"
 				max="99"
-				class="stealth text-center max-w-12 focus:outline-none focus:underline underline-offset-1 decoration-1"
+				class="stealth max-w-12 text-center decoration-1 underline-offset-1 focus:underline focus:outline-none"
 				on:keydown|stopPropagation
 				on:dblclick|stopPropagation
 				on:change={handleQuantityInputChange}
@@ -190,7 +190,7 @@
 					editingName = true;
 				}}
 				class="focus:outline-none {editingName &&
-					'underline'} decoration-1 underline-offset-2 rounded-sm"
+					'underline'} rounded-sm decoration-1 underline-offset-2"
 				>{editingName ? draftName : item.name}</span
 			>
 		</span>
@@ -206,7 +206,7 @@
 							: ' text-stone-400'}">{item.dateAdded.fromNow()}</span
 			>
 			<button
-				class="items-end hover:text-red-600 transition"
+				class="items-end transition hover:text-red-600"
 				on:click={() => {
 					deleteItem(item.id);
 				}}
@@ -218,8 +218,8 @@
 		bind:this={childrenDiv}
 		role="treeitem"
 		aria-selected="false"
-		class="text-sm px-3 overflow-y-hidden bg-[#f3f1fd] mix-blend-multiply {open
-			? 'border-stone-400 border-dashed rounded-sm'
+		class="overflow-y-hidden bg-[#f3f1fd] px-3 text-sm mix-blend-multiply {open
+			? 'rounded-sm border-dashed border-stone-400'
 			: ''}"
 		style="transition: all 0.1s ease-in-out; height: {open
 			? childrenDiv.scrollHeight + 1 + 'px'
@@ -230,7 +230,7 @@
 			<input
 				bind:this={dateAddedInput}
 				type="date"
-				class="border border-dashed border-stone-400 border-1 my-1 px-1 rounded-sm"
+				class="border-1 my-1 rounded-sm border border-dashed border-stone-400 px-1"
 				bind:value={draftDateAdded}
 				on:keydown|stopPropagation={handleDateAddedKeydown}
 				on:dblclick|stopPropagation
@@ -242,7 +242,7 @@
 			<input
 				bind:this={shelfLifeInput}
 				type="number"
-				class="always-display-spinner max-w-12 w-fit mb-1 text-center border-stone-400 border-dashed border border-1 rounded sm ml-3"
+				class="always-display-spinner border-1 sm mb-1 ml-3 w-fit max-w-12 rounded border border-dashed border-stone-400 text-center"
 				bind:value={draftShelfLife}
 				on:keydown|stopPropagation
 				on:dblclick|stopPropagation

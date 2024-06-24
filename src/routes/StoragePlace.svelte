@@ -58,7 +58,7 @@
 	}
 </script>
 
-<div class="border border-black rounded-sm m-3 p-1 max-w-96 min-w-72 h-fit inline-block">
+<div class="m-3 inline-block h-fit min-w-72 max-w-96 rounded-sm border border-black p-1">
 	<h1 class="font-bold">{name} <span class="text-stone-400">({items.length})</span></h1>
 	{#each items as item, i (item.id)}
 		<Item
@@ -88,10 +88,10 @@
 	{/if}
 
 	<input
-		class="border border-black mt-5 px-1 rounded-sm outline-emerald-600 transition placeholder:text-stone-400"
+		class="mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400"
 		value={newItem}
 		on:keypress={handleInputKeypress}
 		maxlength="20"
 	/>
-	<button class="hover:text-emerald-700 hover:font-bold transition" on:click={addNewItem}>+</button>
+	<button class="transition hover:font-bold hover:text-emerald-700" on:click={addNewItem}>+</button>
 </div>

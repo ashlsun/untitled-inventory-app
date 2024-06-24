@@ -21,7 +21,7 @@
 	<div class="m-2 mt-12 max-w-sm">
 		<h1>
 			<b>Tips for users:</b>
-			<span class="text-stone-400 hover:text-stone-500 transition">
+			<span class="text-stone-400 transition hover:text-stone-500">
 				(<button
 					aria-label="{showTips ? 'Hide' : 'Show'} tips"
 					class="underline decoration-1 underline-offset-2"
