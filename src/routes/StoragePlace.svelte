@@ -1,55 +1,60 @@
 <script lang="ts">
 	import dayjs from 'dayjs';
 	import { v7 as uuid } from 'uuid';
-
-	export let name;
 	import Item from './Item.svelte';
 	import { getRandomItems } from '$lib/itemGenerator';
 
-	let items = getRandomItems();
+	// Component props
+	export let storagePlaceName;
 
-	let newItem = '';
+	// State
+	let items = getRandomItems();
+	let newItemName = '';
 	let selectedIndex = -1;
 
+	// Methods and handlers
 	function setSelectedIndex(i: number) {
 		selectedIndex = i;
 	}
 
 	function editNewItem(event: Event) {
 		const target = event.target as HTMLInputElement;
-		newItem = target.value;
+		newItemName = target.value;
 	}
-	function addNewItem() {
-		if (newItem === '') return;
 
-		const newItemList = newItem.split(' ');
+	function addNewItem() {
+		if (newItemName === '') return;
+
+		const newItemList = newItemName.split(' ');
 		if (newItemList.length > 1 && newItemList[0].match(/^\d+$/)) {
 			items = [
 				...items,
 				{
 					id: uuid(),
 					dateAdded: dayjs(),
-					name: newItem.slice(newItemList[0].length).trim(),
+					name: newItemName.slice(newItemList[0].length).trim(),
 					quantity: Number(newItemList[0]),
-					daysToSpoil: 5
+					shelfLife: 5
 				}
 			];
 		} else {
 			items = [
 				...items,
-				{ id: uuid(), dateAdded: dayjs(), name: newItem, quantity: 1, daysToSpoil: 5 }
+				{ id: uuid(), dateAdded: dayjs(), name: newItemName, quantity: 1, shelfLife: 5 }
 			];
 		}
 
-		newItem = '';
+		newItemName = '';
 		selectedIndex = items.length;
 	}
+
 	function deleteItem(itemId: string) {
 		items = items.filter((item) => item.id !== itemId);
 		if (selectedIndex >= items.length) {
 			selectedIndex--;
 		}
 	}
+
 	function handleInputKeypress(event: KeyboardEvent) {
 		editNewItem(event);
 		if (event.key == 'Enter') {
@@ -58,40 +63,45 @@
 	}
 </script>
 
-<div class="border border-black rounded-sm m-3 p-1 max-w-96 min-w-72 h-fit inline-block">
-	<h1 class="font-bold">{name} <span class="text-stone-400">({items.length})</span></h1>
-	{#each items as item, i (item.id)}
-		<Item
-			{item}
-			{deleteItem}
-			selected={selectedIndex === i}
-			on:selected={() => {
-				setSelectedIndex(i);
-			}}
-			on:up={() => {
-				setSelectedIndex(i - 1);
-			}}
-			on:down={() => {
-				setSelectedIndex(i + 1);
-			}}
-			on:changeDateAdded={(event) => {
-				try {
-					item.dateAdded = dayjs(event.detail);
-				} catch {
-					console.log('ok');
-				}
-			}}
-		/>
-	{/each}
+<div
+	class="m-3 inline-block h-fit min-w-72 max-w-96 rounded-sm border border-black p-1"
+	role="tree"
+>
+	<h1 class="font-bold">{storagePlaceName} <span class="text-stone-400">({items.length})</span></h1>
+	<div role="group">
+		{#each items as item, i (item.id)}
+			<Item
+				{item}
+				{deleteItem}
+				isSelected={selectedIndex === i}
+				on:selected={() => {
+					setSelectedIndex(i);
+				}}
+				on:up={() => {
+					setSelectedIndex(i - 1);
+				}}
+				on:down={() => {
+					setSelectedIndex(i + 1);
+				}}
+				on:changeDateAdded={(event) => {
+					try {
+						item.dateAdded = dayjs(event.detail);
+					} catch {
+						console.log('ok');
+					}
+				}}
+			/>
+		{/each}
+	</div>
 	{#if items.length === 0}
-		<div class="text-stone-400">Nothing in the {name}.</div>
+		<div class="text-stone-400">Nothing in the {storagePlaceName}.</div>
 	{/if}
 
 	<input
-		class="border border-black mt-5 px-1 rounded-sm outline-emerald-600 transition placeholder:text-stone-400"
-		value={newItem}
+		class="mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400"
+		value={newItemName}
 		on:keypress={handleInputKeypress}
 		maxlength="20"
 	/>
-	<button class="hover:text-emerald-700 hover:font-bold transition" on:click={addNewItem}>+</button>
+	<button class="transition hover:font-bold hover:text-emerald-700" on:click={addNewItem}>+</button>
 </div>

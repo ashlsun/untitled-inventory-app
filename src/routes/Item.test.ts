@@ -1,13 +1,13 @@
 import {
-	render,
 	fireEvent,
 	cleanup,
-	type RenderResult,
-	getByDisplayValue
+	getByDisplayValue,
+	render,
+	type RenderResult
 } from '@testing-library/svelte';
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest';
 import dayjs from 'dayjs';
-import Item from './Item.svelte';
+import ItemWrappedInTree from '$lib/ItemWrappedInTree.svelte';
 
 describe('The Item component', () => {
 	let mockItem = {
@@ -15,7 +15,7 @@ describe('The Item component', () => {
 		name: 'Test Item',
 		quantity: 1,
 		dateAdded: dayjs(),
-		daysToSpoil: 20
+		shelfLife: 20
 	};
 
 	const mockDeleteItem = vi.fn();
@@ -24,14 +24,14 @@ describe('The Item component', () => {
 		focus: vi.fn()
 	});
 
-	let component: RenderResult<Item>;
+	let component: RenderResult<ItemWrappedInTree>;
 
-	beforeEach(() => {
-		component = render(Item, {
+	beforeEach(async () => {
+		component = render(ItemWrappedInTree, {
 			props: {
 				item: mockItem,
 				deleteItem: mockDeleteItem,
-				selected: false
+				isSelected: false
 			}
 		});
 	});
@@ -45,7 +45,7 @@ describe('The Item component', () => {
 			name: 'Test Item',
 			quantity: 1,
 			dateAdded: dayjs(),
-			daysToSpoil: 10
+			shelfLife: 10
 		};
 
 		vi.clearAllMocks();
@@ -67,17 +67,17 @@ describe('The Item component', () => {
 	});
 
 	it('increases quantity on right arrow key press', async () => {
-		const { getByRole } = component;
+		const { getByTestId } = component;
 
-		const itemElement = getByRole('tree');
+		const itemElement = getByTestId('item-1');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowRight' });
 		expect(mockItem.quantity).toBe(2);
 	});
 
 	it('decreases quantity on left arrow key press', async () => {
-		const { getByRole } = component;
+		const { getByTestId } = component;
 
-		const itemElement = getByRole('tree');
+		const itemElement = getByTestId('item-1');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' });
 		expect(mockItem.quantity).toBe(0);
 		// After 100ms, deleteItem should have been called
