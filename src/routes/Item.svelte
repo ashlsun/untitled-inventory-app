@@ -3,6 +3,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
 	import { createEventDispatcher } from 'svelte';
+	import { type StoredItem } from '$lib/types';
 
 	// Dayjs configuration
 	dayjs.extend(relativeTime);
@@ -26,19 +27,12 @@
 	});
 
 	// Component props
-	export let item: {
-		id: string;
-		name: string;
-		quantity: number;
-		dateAdded: Dayjs;
-		daysToSpoil: number;
-	};
+	export let item: StoredItem;
 	export let deleteItem: (itemId: string) => void;
 	export let isSelected: boolean;
 
 	// State
 	const dispatch = createEventDispatcher();
-	let height = '0';
 	let isExpanded = false;
 	let isEditingName = false;
 	let draftName = item.name;
@@ -62,11 +56,6 @@
 		} else {
 			isExpanded = false;
 		}
-	}
-	$: if (isExpanded) {
-		height = String(childrenDiv.scrollHeight + 1);
-	} else {
-		height = '0';
 	}
 
 	// Methods and handlers
@@ -145,6 +134,7 @@
 <div
 	bind:this={itemDiv}
 	id={item.id}
+	data-testid="item-{item.id}"
 	class="select-none rounded-sm px-2 pt-[0.5px] transition transition-margin focus:outline-none
 		{isSelected ? 'bg-yellow-200' : ''}
 		{isExpanded ? 'pb-2' : ''}"
