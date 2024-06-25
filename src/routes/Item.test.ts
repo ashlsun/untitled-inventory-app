@@ -15,7 +15,7 @@ describe('The Item component', () => {
 		name: 'Test Item',
 		quantity: 1,
 		dateAdded: dayjs(),
-		daysToSpoil: 20
+		shelfLife: 20
 	};
 
 	const mockDeleteItem = vi.fn();
@@ -45,7 +45,7 @@ describe('The Item component', () => {
 			name: 'Test Item',
 			quantity: 1,
 			dateAdded: dayjs(),
-			daysToSpoil: 10
+			shelfLife: 10
 		};
 
 		vi.clearAllMocks();

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import dayjs, { type Dayjs } from 'dayjs';
+	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
 	import { createEventDispatcher } from 'svelte';
@@ -36,7 +36,7 @@
 	let isExpanded = false;
 	let isEditingName = false;
 	let draftName = item.name;
-	let draftShelfLife = item.daysToSpoil;
+	let draftShelfLife = item.shelfLife;
 	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
 
 	// DOM nodes
@@ -48,9 +48,9 @@
 	let shelfLifeInput: HTMLInputElement;
 
 	// Reactive declarations
-	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+	let daysTilSpoil = item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day');
 	$: {
-		daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
+		daysTilSpoil = item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day');
 		if (isSelected) {
 			itemDiv.focus();
 		} else {
@@ -239,7 +239,7 @@
 				bind:value={draftShelfLife}
 				on:keydown|stopPropagation
 				on:dblclick|stopPropagation
-				on:blur={() => (item.daysToSpoil = draftShelfLife)}
+				on:blur={() => (item.shelfLife = draftShelfLife)}
 			/>
 			days
 		</div>

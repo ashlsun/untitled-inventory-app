@@ -34,13 +34,13 @@
 					dateAdded: dayjs(),
 					name: newItemName.slice(newItemList[0].length).trim(),
 					quantity: Number(newItemList[0]),
-					daysToSpoil: 5
+					shelfLife: 5
 				}
 			];
 		} else {
 			items = [
 				...items,
-				{ id: uuid(), dateAdded: dayjs(), name: newItemName, quantity: 1, daysToSpoil: 5 }
+				{ id: uuid(), dateAdded: dayjs(), name: newItemName, quantity: 1, shelfLife: 5 }
 			];
 		}
 

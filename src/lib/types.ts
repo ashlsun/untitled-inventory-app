@@ -5,5 +5,5 @@ export type StoredItem = {
 	name: string;
 	quantity: number;
 	dateAdded: Dayjs;
-	daysToSpoil: number;
+	shelfLife: number;
 };
