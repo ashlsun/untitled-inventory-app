@@ -15,7 +15,7 @@
 
 <div class="m-2">
 	<div class="flex w-full">
-		<StoragePlace name="fridge" />
+		<StoragePlace storagePlaceName="fridge" />
 	</div>
 
 	<div class="m-2 mt-12 max-w-sm">

@@ -31,7 +31,7 @@ describe('The Item component', () => {
 			props: {
 				item: mockItem,
 				deleteItem: mockDeleteItem,
-				selected: false
+				isSelected: false
 			}
 		});
 	});

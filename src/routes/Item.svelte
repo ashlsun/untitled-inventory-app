@@ -2,7 +2,9 @@
 	import dayjs, { type Dayjs } from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
+	import { createEventDispatcher } from 'svelte';
 
+	// Dayjs configuration
 	dayjs.extend(relativeTime);
 	dayjs.extend(updateLocale);
 	dayjs.updateLocale('en', {
@@ -12,8 +14,8 @@
 			s: 'now',
 			m: 'now',
 			mm: 'now',
-			h: '1h',
-			hh: '%dh',
+			h: 'today',
+			hh: 'today',
 			d: '1d',
 			dd: '%dd',
 			M: '1mo',
@@ -23,9 +25,7 @@
 		}
 	});
 
-	import { createEventDispatcher } from 'svelte';
-	const dispatch = createEventDispatcher();
-
+	// Component props
 	export let item: {
 		id: string;
 		name: string;
@@ -34,47 +34,50 @@
 		daysToSpoil: number;
 	};
 	export let deleteItem: (itemId: string) => void;
-	export let selected: boolean;
-	let itemDiv: HTMLDivElement;
-	let itemNameInput: HTMLSpanElement;
-	let itemQuantityInput: HTMLInputElement;
+	export let isSelected: boolean;
 
+	// Reactive declarations
 	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
 	$: {
 		daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
-		if (selected) {
+		if (isSelected) {
 			itemDiv.focus();
 		} else {
-			open = false;
+			isExpanded = false;
 		}
 	}
-
-	let editingName = false;
-	let draftName = item.name;
-	let childrenDiv: HTMLDivElement;
-	let height = '0';
-	let open = false;
-
-	let dateAddedInput: HTMLInputElement;
-	let shelfLifeInput: HTMLInputElement;
-
-	let draftShelfLife = item.daysToSpoil;
-	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
-
-	$: if (open) {
+	$: if (isExpanded) {
 		height = String(childrenDiv.scrollHeight + 1);
 	} else {
 		height = '0';
 	}
 
+	const dispatch = createEventDispatcher();
+	let height = '0';
+	let isExpanded = false;
+	let isEditingName = false;
+	let draftName = item.name;
+	let draftShelfLife = item.daysToSpoil;
+	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+	let itemDiv: HTMLDivElement;
+	let itemNameInput: HTMLSpanElement;
+	let itemQuantityInput: HTMLInputElement;
+	let childrenDiv: HTMLDivElement;
+	let dateAddedInput: HTMLInputElement;
+	let shelfLifeInput: HTMLInputElement;
+
+	function updateDateAdded() {
+		dispatch('changeDateAdded', draftDateAdded);
+	}
+
 	function handleKeyDownOnName(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			item.name = draftName;
-			editingName = false;
+			isEditingName = false;
 			itemNameInput.blur();
 		} else if (event.key === 'Escape') {
 			draftName = item.name;
-			editingName = false;
+			isEditingName = false;
 			itemNameInput.blur();
 		} else if (
 			// enforce 20 character maximum
@@ -88,16 +91,16 @@
 		}
 	}
 
-	function handleKeyPressOnItem(event: KeyboardEvent, itemId: string) {
+	function handleKeyDownOnItem(event: KeyboardEvent, itemId: string) {
 		if (event.key === 'Delete' || event.key === 'Backspace') {
-			if (open) {
-				open = false;
+			if (isExpanded) {
+				isExpanded = false;
 				setTimeout(() => deleteItem(itemId), 70);
 			} else {
 				deleteItem(itemId);
 			}
 		} else if (event.key === 'Enter') {
-			open = !open;
+			isExpanded = !isExpanded;
 		} else if (event.key === 'ArrowUp') {
 			dispatch('up');
 		} else if (event.key === 'ArrowDown') {
@@ -112,10 +115,6 @@
 		} else {
 			console.log(event);
 		}
-	}
-
-	function updateDateAdded() {
-		dispatch('changeDateAdded', draftDateAdded);
 	}
 
 	function handleDateAddedKeydown(event: KeyboardEvent) {
@@ -142,27 +141,27 @@
 <div
 	bind:this={itemDiv}
 	id={item.id}
-	class="rounded-sm px-2 pt-[0.5px] {selected
-		? 'bg-yellow-200'
-		: open
-			? 'my-1 outline outline-1 outline-[#e5e3ef]'
-			: ''}  transition transition-margin focus:outline-none {open ? 'pb-2' : ''} select-none"
-	on:focus={() => dispatch('selected')}
+	class="select-none rounded-sm px-2 pt-[0.5px] transition transition-margin focus:outline-none
+		{isSelected ? 'bg-yellow-200' : ''}
+		{isExpanded ? 'pb-2' : ''}"
 	tabindex="-1"
-	role="tree"
-	on:keydown={(event) => handleKeyPressOnItem(event, item.id)}
-	on:dblclick={() => {
-		open = !open;
-	}}
+	role="treeitem"
+	aria-selected={isSelected}
+	aria-expanded={isExpanded}
+	on:focus={() => dispatch('selected')}
+	on:keydown={(event) => handleKeyDownOnItem(event, item.id)}
 	on:click={(event) => {
 		// to remove the caret/selection inserted at itemNameInput
 		if (event.target !== itemNameInput) {
 			itemNameInput.blur();
 		}
 	}}
+	on:dblclick={() => {
+		isExpanded = !isExpanded;
+	}}
 	on:blur={() => {
 		draftName = item.name;
-		editingName = false;
+		isEditingName = false;
 	}}
 >
 	<div class="flex justify-between">
@@ -185,13 +184,13 @@
 				role="textbox"
 				tabindex="-1"
 				contenteditable
+				class="rounded-sm decoration-1 underline-offset-2 focus:outline-none {isEditingName &&
+					'underline'}"
 				on:keydown|stopPropagation={handleKeyDownOnName}
 				on:click={() => {
-					editingName = true;
+					isEditingName = true;
 				}}
-				class="focus:outline-none {editingName &&
-					'underline'} rounded-sm decoration-1 underline-offset-2"
-				>{editingName ? draftName : item.name}</span
+				on:dblclick|stopPropagation>{isEditingName ? draftName : item.name}</span
 			>
 		</span>
 
@@ -217,11 +216,12 @@
 	<div
 		bind:this={childrenDiv}
 		role="treeitem"
+		aria-hidden={!isExpanded}
 		aria-selected="false"
-		class="overflow-y-hidden bg-[#f3f1fd] px-3 text-sm mix-blend-multiply {open
+		class="overflow-y-hidden bg-[#f3f1fd] px-3 text-sm mix-blend-multiply {isExpanded
 			? 'rounded-sm border-dashed border-stone-400'
 			: ''}"
-		style="transition: all 0.1s ease-in-out; height: {open
+		style="transition: all 0.1s ease-in-out; height: {isExpanded
 			? childrenDiv.scrollHeight + 1 + 'px'
 			: '0px'};"
 	>
