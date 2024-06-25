@@ -1,15 +1,18 @@
 <script lang="ts">
-	export let storagePlaceName;
-	import Item from './Item.svelte';
-	import { getRandomItems } from '$lib/itemGenerator';
 	import dayjs from 'dayjs';
 	import { v7 as uuid } from 'uuid';
+	import Item from './Item.svelte';
+	import { getRandomItems } from '$lib/itemGenerator';
 
+	// Component props
+	export let storagePlaceName;
+
+	// State
 	let items = getRandomItems();
-
 	let newItemName = '';
 	let selectedIndex = -1;
 
+	// Methods and handlers
 	function setSelectedIndex(i: number) {
 		selectedIndex = i;
 	}
@@ -60,9 +63,12 @@
 	}
 </script>
 
-<div class="m-3 inline-block h-fit min-w-72 max-w-96 rounded-sm border border-black p-1">
+<div
+	class="m-3 inline-block h-fit min-w-72 max-w-96 rounded-sm border border-black p-1"
+	role="tree"
+>
 	<h1 class="font-bold">{storagePlaceName} <span class="text-stone-400">({items.length})</span></h1>
-	<div role="tree">
+	<div role="group">
 		{#each items as item, i (item.id)}
 			<Item
 				{item}

@@ -36,6 +36,23 @@
 	export let deleteItem: (itemId: string) => void;
 	export let isSelected: boolean;
 
+	// State
+	const dispatch = createEventDispatcher();
+	let height = '0';
+	let isExpanded = false;
+	let isEditingName = false;
+	let draftName = item.name;
+	let draftShelfLife = item.daysToSpoil;
+	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+
+	// DOM nodes
+	let itemDiv: HTMLDivElement;
+	let itemNameInput: HTMLSpanElement;
+	let itemQuantityInput: HTMLInputElement;
+	let childrenDiv: HTMLDivElement;
+	let dateAddedInput: HTMLInputElement;
+	let shelfLifeInput: HTMLInputElement;
+
 	// Reactive declarations
 	let daysTilSpoil = item.dateAdded.add(item.daysToSpoil, 'day').diff(dayjs(), 'day');
 	$: {
@@ -52,20 +69,7 @@
 		height = '0';
 	}
 
-	const dispatch = createEventDispatcher();
-	let height = '0';
-	let isExpanded = false;
-	let isEditingName = false;
-	let draftName = item.name;
-	let draftShelfLife = item.daysToSpoil;
-	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
-	let itemDiv: HTMLDivElement;
-	let itemNameInput: HTMLSpanElement;
-	let itemQuantityInput: HTMLInputElement;
-	let childrenDiv: HTMLDivElement;
-	let dateAddedInput: HTMLInputElement;
-	let shelfLifeInput: HTMLInputElement;
-
+	// Methods and handlers
 	function updateDateAdded() {
 		dispatch('changeDateAdded', draftDateAdded);
 	}
@@ -215,9 +219,8 @@
 	</div>
 	<div
 		bind:this={childrenDiv}
-		role="treeitem"
+		role="group"
 		aria-hidden={!isExpanded}
-		aria-selected="false"
 		class="overflow-y-hidden bg-[#f3f1fd] px-3 text-sm mix-blend-multiply {isExpanded
 			? 'rounded-sm border-dashed border-stone-400'
 			: ''}"
@@ -225,7 +228,7 @@
 			? childrenDiv.scrollHeight + 1 + 'px'
 			: '0px'};"
 	>
-		<div>
+		<div role="treeitem" aria-selected="false">
 			Edit date added:
 			<input
 				bind:this={dateAddedInput}
@@ -237,7 +240,7 @@
 				on:blur={updateDateAdded}
 			/>
 		</div>
-		<div>
+		<div role="treeitem" aria-selected="false">
 			Edit shelf life:
 			<input
 				bind:this={shelfLifeInput}
