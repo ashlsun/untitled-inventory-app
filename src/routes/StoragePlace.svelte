@@ -14,7 +14,9 @@
 
 	// Methods and handlers
 	function setSelectedIndex(i: number) {
-		selectedIndex = i;
+		if (i < 0) selectedIndex = 0;
+		else if (i >= items.length) selectedIndex = items.length - 1;
+		else selectedIndex = i;
 	}
 
 	function editNewItem(event: Event) {
