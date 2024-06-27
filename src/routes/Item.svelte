@@ -97,9 +97,26 @@
 	function handlePaste(event: ClipboardEvent) {
 		event.preventDefault();
 		const clipboardText = event.clipboardData?.getData('text') || '';
-		const spaceAvailable = 20 - draftName.length;
+		const selection = window.getSelection();
+
+		if (!selection || selection.rangeCount === 0) return;
+
+		const range = selection.getRangeAt(0);
+		const contentBefore = itemNameInput.textContent?.slice(0, range.startOffset) ?? '';
+		const contentAfter = itemNameInput.textContent?.slice(range.endOffset) ?? '';
+
+		const spaceAvailable = 20 - (contentBefore.length + contentAfter.length);
 		const textToInsert = clipboardText.slice(0, spaceAvailable);
-		draftName += textToInsert;
+		range.deleteContents();
+
+		const textNode = document.createTextNode(textToInsert);
+		range.insertNode(textNode);
+		range.setStartAfter(textNode);
+		range.setEndAfter(textNode);
+		selection.removeAllRanges();
+		selection.addRange(range);
+
+		draftName = (contentBefore + textToInsert + contentAfter).slice(0, 20);
 	}
 
 	function handleKeyDownOnItem(event: KeyboardEvent, itemId: string) {
