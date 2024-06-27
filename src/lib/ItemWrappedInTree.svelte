@@ -6,17 +6,11 @@
 
 <script lang="ts">
 	import Item from '../routes/Item.svelte';
-	import { type StoredItem } from './types';
+	import type { Props, Events } from '../routes/Item.svelte';
 
-	type Props = {
-		item: StoredItem;
-		deleteItem: (itemId: string) => void;
-		isSelected: boolean;
-	};
-
-	let { item, deleteItem, isSelected }: Props = $props();
+	let { ...props }: Props & Events = $props();
 </script>
 
 <div role="tree">
-	<Item {item} {deleteItem} {isSelected} />
+	<Item {...props} />
 </div>

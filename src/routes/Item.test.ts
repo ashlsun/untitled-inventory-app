@@ -4,7 +4,7 @@ import {
 	getByDisplayValue,
 	render,
 	type RenderResult
-} from '@testing-library/svelte';
+} from '@testing-library/svelte/svelte5';
 import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest';
 import dayjs from 'dayjs';
 import ItemWrappedInTree from '$lib/ItemWrappedInTree.svelte';
@@ -31,7 +31,10 @@ describe('The Item component', () => {
 			props: {
 				item: mockItem,
 				deleteItem: mockDeleteItem,
-				isSelected: false
+				isSelected: false,
+        onChangeDate: vi.fn(),
+        onQuantityChange: vi.fn(),
+        onSelected: vi.fn(),
 			}
 		});
 	});

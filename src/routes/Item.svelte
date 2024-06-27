@@ -1,43 +1,24 @@
-<script lang="ts">
+<script lang="ts" context="module">
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
-	import { type StoredItem } from '$lib/types';
 	import { stopPropagation } from '$lib/utils';
+	import { type StoredItem } from '$lib/types';
 
-	// Dayjs configuration
-	dayjs.extend(relativeTime);
-	dayjs.extend(updateLocale);
-	dayjs.updateLocale('en', {
-		relativeTime: {
-			future: '%s',
-			past: '%s',
-			s: 'now',
-			m: 'now',
-			mm: 'now',
-			h: 'today',
-			hh: 'today',
-			d: '1d',
-			dd: '%dd',
-			M: '1mo',
-			MM: '%dmo',
-			y: '1yr',
-			yy: '%dyrs'
-		}
-	});
-
-	type Props = {
+	export type Props = {
 		item: StoredItem;
 		deleteItem: (itemId: string) => void;
 		isSelected: boolean;
 	};
 
-	type Events = {
+	export type Events = {
 		onSelected: (index?: number) => void;
 		onQuantityChange: (quantity: number) => void;
 		onChangeDate: (date: string) => void;
 	};
+</script>
 
+<script lang="ts">
 	let { item, deleteItem, isSelected, onSelected, onQuantityChange, onChangeDate }: Props & Events =
 		$props();
 
@@ -64,6 +45,27 @@
 			itemDiv.focus();
 		} else {
 			isExpanded = false;
+		}
+	});
+
+	// Dayjs configuration
+	dayjs.extend(relativeTime);
+	dayjs.extend(updateLocale);
+	dayjs.updateLocale('en', {
+		relativeTime: {
+			future: '%s',
+			past: '%s',
+			s: 'now',
+			m: 'now',
+			mm: 'now',
+			h: 'today',
+			hh: 'today',
+			d: '1d',
+			dd: '%dd',
+			M: '1mo',
+			MM: '%dmo',
+			y: '1yr',
+			yy: '%dyrs'
 		}
 	});
 
