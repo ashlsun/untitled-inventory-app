@@ -8,8 +8,11 @@
 		IconArrowRight,
 		IconArrowLeft
 	} from '@tabler/icons-svelte';
-	let showTips = false;
-	let tips: HTMLDivElement;
+  
+	let showTips = $state(false);
+	// let tips: HTMLDivElement | null = $state(null);
+  let tips: HTMLDivElement
+
 	// TODO: fix broken accordion on resize
 </script>
 
@@ -25,7 +28,7 @@
 				(<button
 					aria-label="{showTips ? 'Hide' : 'Show'} tips"
 					class="underline decoration-1 underline-offset-2"
-					on:click={() => (showTips = !showTips)}>{showTips ? 'hide' : 'show'}</button
+					onclick={() => (showTips = !showTips)}>{showTips ? 'hide' : 'show'}</button
 				>)
 			</span>
 		</h1>
@@ -34,7 +37,7 @@
 			bind:this={tips}
 			class="text-sm"
 			style="transition: all 0.1s ease-in-out; overflow: hidden; height: {showTips
-				? tips.scrollHeight + 1 + 'px'
+				? tips?.scrollHeight + 1 + 'px'
 				: '0px'};"
 		>
 			<p>This is a demo, so nothing here is saved.</p>

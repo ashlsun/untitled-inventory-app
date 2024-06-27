@@ -7,9 +7,14 @@
 <script lang="ts">
 	import Item from '../routes/Item.svelte';
 	import { type StoredItem } from './types';
-	export let item: StoredItem;
-	export let deleteItem: (itemId: string) => void;
-	export let isSelected: boolean;
+
+	type Props = {
+		item: StoredItem;
+		deleteItem: (itemId: string) => void;
+		isSelected: boolean;
+	};
+
+	let { item, deleteItem, isSelected }: Props = $props();
 </script>
 
 <div role="tree">

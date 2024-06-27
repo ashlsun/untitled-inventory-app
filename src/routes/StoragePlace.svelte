@@ -4,13 +4,15 @@
 	import Item from './Item.svelte';
 	import { getRandomItems } from '$lib/itemGenerator';
 
-	// Component props
-	export let storagePlaceName;
+  // Props
+  let {
+    storagePlaceName
+  }: { storagePlaceName: string } = $props();
 
-	// State
-	let items = getRandomItems();
-	let newItemName = '';
-	let selectedIndex = -1;
+  // State
+	let items = $state(getRandomItems());
+	let newItemName = $state('');
+	let selectedIndex = $state(-1);
 
 	// Methods and handlers
 	function setSelectedIndex(i: number) {
@@ -74,18 +76,18 @@
 				{item}
 				{deleteItem}
 				isSelected={selectedIndex === i}
-				on:selected={() => {
+				onSelected={() => {
 					setSelectedIndex(i);
 				}}
-				on:up={() => {
+				onUp={() => {
 					setSelectedIndex(i - 1);
 				}}
-				on:down={() => {
+				onDown={() => {
 					setSelectedIndex(i + 1);
 				}}
-				on:changeDateAdded={(event) => {
+				onChangeDateAdded={(date) => {
 					try {
-						item.dateAdded = dayjs(event.detail);
+						item.dateAdded = dayjs(date);
 					} catch {
 						console.log('ok');
 					}
@@ -100,8 +102,8 @@
 	<input
 		class="mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400"
 		value={newItemName}
-		on:keypress={handleInputKeypress}
+		onkeypress={handleInputKeypress}
 		maxlength="20"
 	/>
-	<button class="transition hover:font-bold hover:text-emerald-700" on:click={addNewItem}>+</button>
+	<button class="transition hover:font-bold hover:text-emerald-700" onclick={addNewItem}>+</button>
 </div>
