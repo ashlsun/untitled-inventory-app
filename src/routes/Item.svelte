@@ -26,26 +26,20 @@
 		}
 	});
 
-  type Props = {
-    item: StoredItem;
-    deleteItem: (itemId: string) => void;
-    isSelected: boolean;
-  }
+	type Props = {
+		item: StoredItem;
+		deleteItem: (itemId: string) => void;
+		isSelected: boolean;
+	};
 
-  type Events = {
-    onSelected: (index?: number) => void;
-    onQuantityChange: (quantity: number) => void;
-    onChangeDate: (date: string) => void;
-  }
+	type Events = {
+		onSelected: (index?: number) => void;
+		onQuantityChange: (quantity: number) => void;
+		onChangeDate: (date: string) => void;
+	};
 
-  let {
-    item,
-    deleteItem,
-    isSelected,
-    onSelected,
-    onQuantityChange,
-    onChangeDate,
-  }: Props & Events = $props();
+	let { item, deleteItem, isSelected, onSelected, onQuantityChange, onChangeDate }: Props & Events =
+		$props();
 
 	// State
 	let isExpanded = $state(false);
@@ -58,13 +52,13 @@
 	let itemDiv: HTMLDivElement;
 	let itemNameInput: HTMLSpanElement;
 	let itemQuantityInput: HTMLInputElement;
-	let childrenDiv: HTMLDivElement
+	let childrenDiv: HTMLDivElement;
 	let dateAddedInput: HTMLInputElement;
 	let shelfLifeInput: HTMLInputElement;
 
 	// Reactive declarations
 	let daysTilSpoil = $derived(item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day'));
-  
+
 	$effect(() => {
 		if (isSelected) {
 			itemDiv.focus();
@@ -106,13 +100,13 @@
 		} else if (event.key === 'Enter') {
 			isExpanded = !isExpanded;
 		} else if (event.key === 'ArrowUp') {
-      onSelected(-1);
+			onSelected(-1);
 		} else if (event.key === 'ArrowDown') {
-      onSelected(1);
+			onSelected(1);
 		} else if (event.key === 'ArrowRight') {
-      onQuantityChange(item.quantity + 1);
+			onQuantityChange(item.quantity + 1);
 		} else if (event.key === 'ArrowLeft') {
-      onQuantityChange(item.quantity - 1);
+			onQuantityChange(item.quantity - 1);
 		} else {
 			console.log(event);
 		}
@@ -175,8 +169,8 @@
 				min="0"
 				max="99"
 				class="stealth max-w-12 text-center decoration-1 underline-offset-1 focus:underline focus:outline-none"
-        onkeydown={stopPropagation()}
-        ondblclick={stopPropagation()}
+				onkeydown={stopPropagation()}
+				ondblclick={stopPropagation()}
 				onchange={handleQuantityInputChange}
 			/>
 
@@ -192,9 +186,10 @@
 				onclick={() => {
 					isEditingName = true;
 				}}
-				ondblclick={stopPropagation()}>
-        {isEditingName ? draftName : item.name}
-      </span>
+				ondblclick={stopPropagation()}
+			>
+				{isEditingName ? draftName : item.name}
+			</span>
 		</span>
 
 		<span>

@@ -8,10 +8,10 @@
 		IconArrowRight,
 		IconArrowLeft
 	} from '@tabler/icons-svelte';
-  
+
 	let showTips = $state(false);
 	// let tips: HTMLDivElement | null = $state(null);
-  let tips: HTMLDivElement
+	let tips: HTMLDivElement;
 
 	// TODO: fix broken accordion on resize
 </script>
@@ -37,7 +37,7 @@
 			bind:this={tips}
 			class="text-sm"
 			style="transition: all 0.1s ease-in-out; overflow: hidden; height: {showTips
-				? tips?.scrollHeight + 1 + 'px'
+				? tips.scrollHeight + 1 + 'px'
 				: '0px'};"
 		>
 			<p>This is a demo, so nothing here is saved.</p>
