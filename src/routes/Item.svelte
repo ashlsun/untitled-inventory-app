@@ -33,10 +33,9 @@
   }
 
   type Events = {
-    onSelected: () => void;
-    onChangeDateAdded: (date: string) => void;
-    onUp: () => void;
-    onDown: () => void;
+    onSelected: (index?: number) => void;
+    onQuantityChange: (quantity: number) => void;
+    onChangeDate: (date: string) => void;
   }
 
   let {
@@ -44,9 +43,8 @@
     deleteItem,
     isSelected,
     onSelected,
-    onChangeDateAdded,
-    onUp,
-    onDown,
+    onQuantityChange,
+    onChangeDate,
   }: Props & Events = $props();
 
 	// State
@@ -76,10 +74,6 @@
 	});
 
 	// Methods and handlers
-	function updateDateAdded() {
-		onChangeDateAdded(draftDateAdded);
-	}
-
 	function handleKeyDownOnName(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			item.name = draftName;
@@ -112,16 +106,13 @@
 		} else if (event.key === 'Enter') {
 			isExpanded = !isExpanded;
 		} else if (event.key === 'ArrowUp') {
-			onUp();
+      onSelected(-1);
 		} else if (event.key === 'ArrowDown') {
-			onDown();
+      onSelected(1);
 		} else if (event.key === 'ArrowRight') {
-			item.quantity++;
+      onQuantityChange(item.quantity + 1);
 		} else if (event.key === 'ArrowLeft') {
-			item.quantity--;
-			if (item.quantity === 0) {
-				setTimeout(() => deleteItem(item.id), 100);
-			}
+      onQuantityChange(item.quantity - 1);
 		} else {
 			console.log(event);
 		}
@@ -129,7 +120,7 @@
 
 	function handleDateAddedKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
-			updateDateAdded();
+			onChangeDate(draftDateAdded);
 		} else if (event.key === 'Escape') {
 			draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
 			dateAddedInput.blur();
@@ -245,7 +236,7 @@
 				bind:value={draftDateAdded}
 				onkeydown={stopPropagation(handleDateAddedKeydown)}
 				ondblclick={stopPropagation()}
-				onblur={updateDateAdded}
+				onblur={() => onChangeDate(draftDateAdded)}
 			/>
 		</div>
 		<div role="treeitem" aria-selected="false">

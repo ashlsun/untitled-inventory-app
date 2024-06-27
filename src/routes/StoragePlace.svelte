@@ -71,21 +71,23 @@
 >
 	<h1 class="font-bold">{storagePlaceName} <span class="text-stone-400">({items.length})</span></h1>
 	<div role="group">
-		{#each items as item, i (item.id)}
+    {#each items as item, i (item.id)}
 			<Item
 				{item}
 				{deleteItem}
 				isSelected={selectedIndex === i}
-				onSelected={() => {
-					setSelectedIndex(i);
-				}}
-				onUp={() => {
-					setSelectedIndex(i - 1);
-				}}
-				onDown={() => {
-					setSelectedIndex(i + 1);
-				}}
-				onChangeDateAdded={(date) => {
+        onSelected={(amount = 0) => {
+          setSelectedIndex(i + amount);
+        }}
+        onQuantityChange={(quantity) => {
+          if (quantity < 1) {
+            deleteItem(item.id);
+            return;
+          }
+          
+          item.quantity = quantity;
+        }}
+				onChangeDate={(date) => {
 					try {
 						item.dateAdded = dayjs(date);
 					} catch {
