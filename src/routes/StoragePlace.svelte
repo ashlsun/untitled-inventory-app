@@ -66,7 +66,7 @@
 </script>
 
 <div
-	class="m-3 inline-block h-fit min-w-72 max-w-96 rounded-sm border border-black p-1"
+	class="m-3 inline-block h-fit min-w-80 max-w-[420px] rounded-sm border border-black p-1"
 	role="tree"
 >
 	<h1 class="font-bold">{storagePlaceName} <span class="text-stone-400">({items.length})</span></h1>

@@ -81,17 +81,31 @@
 			itemNameInput.blur();
 		} else if (
 			// enforce 20 character maximum
-			// TODO: truncate pasting
-			draftName.length > 18 &&
+			draftName.length >= 20 &&
 			event.key !== 'Backspace' &&
 			event.key !== 'Delete' &&
+			event.key !== 'ArrowUp' &&
+			event.key !== 'ArrowDown' &&
+			event.key !== 'ArrowRight' &&
+			event.key !== 'ArrowLeft' &&
 			!document.getSelection()?.toString()
 		) {
 			event.preventDefault();
 		}
 	}
 
+	function handlePaste(event: ClipboardEvent) {
+		event.preventDefault();
+		const clipboardText = event.clipboardData?.getData('text') || '';
+		const spaceAvailable = 20 - draftName.length;
+		const textToInsert = clipboardText.slice(0, spaceAvailable);
+		draftName += textToInsert;
+	}
+
 	function handleKeyDownOnItem(event: KeyboardEvent, itemId: string) {
+		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
+			return;
+
 		if (event.key === 'Delete' || event.key === 'Backspace') {
 			if (isExpanded) {
 				isExpanded = false;
@@ -185,6 +199,7 @@
 				class="rounded-sm decoration-1 underline-offset-2 focus:outline-none {isEditingName &&
 					'underline'}"
 				onkeydown={stopPropagation(handleKeyDownOnName)}
+				onpaste={handlePaste}
 				onclick={() => {
 					isEditingName = true;
 				}}
