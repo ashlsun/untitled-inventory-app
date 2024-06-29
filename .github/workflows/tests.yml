@@ -21,12 +21,12 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install  --legacy-peer-deps
+        run: npm install
         continue-on-error: true
 
-      - name: Install dependencies --legacy-peer-deps
+      - name: Install dependencies
         if: failure()
-        run: npm install --legacy-peer-deps
+        run: npm install
 
       - name: Run Tests
         run: npm run test
