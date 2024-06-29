@@ -75,7 +75,7 @@ describe('The Item component', () => {
 
 		const itemElement = getByTestId('item-1');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowRight' });
-		expect(mockItem.quantity).toBe(2);
+		expect(onQuantityChange).toHaveBeenCalledWith(2);
 	});
 
 	it('decreases quantity on left arrow key press', async () => {
@@ -83,7 +83,7 @@ describe('The Item component', () => {
 
 		const itemElement = getByTestId('item-1');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' });
-		expect(mockItem.quantity).toBe(0);
+		expect(onQuantityChange).toHaveBeenCalledWith(0);
 		// After 100ms, deleteItem should have been called
 		setInterval(() => expect(mockDeleteItem).toHaveBeenCalledWith('1'), 120); // always true
 	});
