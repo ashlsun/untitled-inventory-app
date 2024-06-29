@@ -1,10 +1,4 @@
-import {
-	fireEvent,
-	cleanup,
-	getByDisplayValue,
-	render,
-	type RenderResult
-} from '@testing-library/svelte';
+import { fireEvent, cleanup, render, type RenderResult } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, vi, it } from 'vitest';
 import dayjs from 'dayjs';
 import ItemWrappedInTree from '$lib/ItemWrappedInTree.svelte';
@@ -68,6 +62,7 @@ describe('The Item component', () => {
 
 		await fireEvent.click(getByText('delete'));
 		expect(mockDeleteItem).toHaveBeenCalledWith('1');
+		expect(mockDeleteItem).toHaveBeenCalledOnce();
 	});
 
 	it('increases quantity on right arrow key press', async () => {
@@ -76,6 +71,7 @@ describe('The Item component', () => {
 		const itemElement = getByTestId('item-1');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowRight' });
 		expect(onQuantityChange).toHaveBeenCalledWith(2);
+		expect(onQuantityChange).toHaveBeenCalledOnce();
 	});
 
 	it('decreases quantity on left arrow key press', async () => {
@@ -84,7 +80,6 @@ describe('The Item component', () => {
 		const itemElement = getByTestId('item-1');
 		await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' });
 		expect(onQuantityChange).toHaveBeenCalledWith(0);
-		// After 100ms, deleteItem should have been called
-		setInterval(() => expect(mockDeleteItem).toHaveBeenCalledWith('1'), 120); // always true
+		expect(onQuantityChange).toHaveBeenCalledOnce();
 	});
 });
