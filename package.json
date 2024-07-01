@@ -44,6 +44,7 @@
 	"dependencies": {
 		"@tabler/icons-svelte": "^3.6.0",
 		"dayjs": "^1.11.11",
+		"openai": "^4.52.2",
 		"uuid": "^10.0.0"
 	}
 }

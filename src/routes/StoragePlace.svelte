@@ -3,6 +3,8 @@
 	import { v7 as uuid } from 'uuid';
 	import Item from './Item.svelte';
 	import { getRandomItems } from '$lib/itemGenerator';
+	import { encodeImage } from '$lib/imageUtils';
+	import { getPromptText } from '$lib/promptText';
 
 	// Component props
 	export let storagePlaceName;
@@ -11,6 +13,9 @@
 	let items = getRandomItems();
 	let newItemName = '';
 	let selectedIndex = -1;
+	let selectedFile: File | null = null;
+	let isProcessingReceipt = false;
+	let errorProcessingReceipt = false;
 
 	// Methods and handlers
 	function setSelectedIndex(i: number) {
@@ -31,7 +36,7 @@
 				...items,
 				{
 					id: uuid(),
-					dateAdded: dayjs(),
+					dateAdded: dayjs().format('YYYY-MM-DD'),
 					name: newItemName.slice(newItemList[0].length).trim(),
 					quantity: Number(newItemList[0]),
 					shelfLife: 5
@@ -40,7 +45,13 @@
 		} else {
 			items = [
 				...items,
-				{ id: uuid(), dateAdded: dayjs(), name: newItemName, quantity: 1, shelfLife: 5 }
+				{
+					id: uuid(),
+					dateAdded: dayjs().format('YYYY-MM-DD'),
+					name: newItemName,
+					quantity: 1,
+					shelfLife: 5
+				}
 			];
 		}
 
@@ -60,6 +71,117 @@
 		if (event.key == 'Enter') {
 			addNewItem();
 		}
+	}
+
+	function handleFileSelect(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const files = target.files;
+		if (!files || files.length !== 1) {
+			console.log('files does not have 1 elem');
+			return;
+		}
+
+		const file = files[0];
+		if (!file) return;
+
+		selectedFile = target.files?.[0] || null;
+	}
+
+	async function handleUpload() {
+		if (!selectedFile) return;
+
+		try {
+			isProcessingReceipt = true;
+			errorProcessingReceipt = false;
+			const base64Image = await encodeImage(selectedFile); // Function to encode image to base64
+
+			// Send image data and prompt to OpenAI
+			const response = await sendImageToOpenAI(base64Image);
+
+			const content = response.choices[0].message.content;
+			console.log(content);
+
+			try {
+				const json_content = JSON.parse(content);
+				console.log(json_content);
+				const json_items = json_content.items;
+				console.log(json_items);
+				const itemsWithIdsAdded = json_items.map(
+					(extractedItem: { name: string; quantity: number; shelfLife: number }) => {
+						console.log('processing', JSON.stringify(extractedItem));
+						const processedItem = JSON.parse(JSON.stringify(extractedItem));
+						if (processedItem.id === 'to be generated') {
+							processedItem.id = uuid();
+							console.log('new item', processedItem);
+						} else {
+							console.log('existing item', processedItem);
+						}
+						return processedItem;
+					}
+				);
+
+				console.log(itemsWithIdsAdded);
+				items = [...itemsWithIdsAdded];
+			} catch (e) {
+				console.log("darn couldn't parse", e);
+				errorProcessingReceipt = true;
+			}
+
+			console.log('OpenAI Response:', response); // Example: Log response from OpenAI
+
+			// Clear selected file after successful upload
+			selectedFile = null;
+			isProcessingReceipt = false;
+		} catch (error) {
+			console.error('Error uploading image:', error);
+			isProcessingReceipt = false;
+			errorProcessingReceipt = true;
+		}
+	}
+
+	async function sendImageToOpenAI(base64Image: string) {
+		const apiEndpoint = 'https://api.openai.com/v1/chat/completions';
+		const api_key = 'OPENAI API KEY'; // Replace with your OpenAI API key
+
+		const headers = {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${api_key}`
+		};
+
+		const existingInventory = JSON.stringify(items);
+		const payload = {
+			model: 'gpt-4o',
+			response_format: { type: 'json_object' },
+			messages: [
+				{
+					role: 'user',
+					content: [
+						{
+							type: 'text',
+							text: getPromptText(existingInventory)
+						},
+						{
+							type: 'image_url',
+							image_url: {
+								url: `data:image/jpeg;base64,${base64Image}`
+							}
+						}
+					]
+				}
+			],
+			max_tokens: 1000
+		};
+		const response = await fetch(apiEndpoint, {
+			method: 'POST',
+			headers: headers,
+			body: JSON.stringify(payload)
+		});
+
+		if (!response.ok) {
+			throw new Error(`OpenAI API request failed: ${response.status} ${response.statusText}`);
+		}
+
+		return response.json();
 	}
 </script>
 
@@ -85,7 +207,7 @@
 				}}
 				on:changeDateAdded={(event) => {
 					try {
-						item.dateAdded = dayjs(event.detail);
+						item.dateAdded = dayjs(event.detail).format('YYYY-MM-DD');
 					} catch {
 						console.log('ok');
 					}
@@ -97,6 +219,20 @@
 		<div class="text-stone-400">Nothing in the {storagePlaceName}.</div>
 	{/if}
 
+	<div class="mb-1 mt-3 px-1 text-sm">
+		receipt pic:
+		<div class="flex items-center text-xs">
+			<input type="file" accept="image/*" class="" on:change={handleFileSelect} />
+			<button class="transition hover:font-bold hover:text-emerald-700" on:click={handleUpload}
+				>extract items</button
+			>
+		</div>
+		{#if isProcessingReceipt}
+			<div class="italic">One moment while receipt is being processed...</div>
+		{:else if errorProcessingReceipt}
+			<div class="text-red-800">Dang! An error occurred :(</div>
+		{/if}
+	</div>
 	<input
 		class="mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400"
 		value={newItemName}

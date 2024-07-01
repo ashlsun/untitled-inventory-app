@@ -37,7 +37,8 @@
 	let isEditingName = false;
 	let draftName = item.name;
 	let draftShelfLife = item.shelfLife;
-	let draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+	let draftDateAdded = item.dateAdded;
+	let mounted = false;
 
 	// DOM nodes
 	let itemDiv: HTMLDivElement;
@@ -48,10 +49,11 @@
 	let shelfLifeInput: HTMLInputElement;
 
 	// Reactive declarations
-	let daysTilSpoil = item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day');
+	let daysTilSpoil = dayjs(item.dateAdded).add(item.shelfLife, 'day').diff(dayjs(), 'day');
+
 	$: {
-		daysTilSpoil = item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day');
-		if (isSelected) {
+		daysTilSpoil = dayjs(item.dateAdded).add(item.shelfLife, 'day').diff(dayjs(), 'day');
+		if (isSelected && itemDiv) {
 			itemDiv.focus();
 		} else {
 			isExpanded = false;
@@ -114,7 +116,7 @@
 		if (event.key === 'Enter') {
 			updateDateAdded();
 		} else if (event.key === 'Escape') {
-			draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+			draftDateAdded = dayjs(item.dateAdded).format('YYYY-MM-DD');
 			dateAddedInput.blur();
 		}
 	}
@@ -196,7 +198,7 @@
 						? 'text-orange-500'
 						: daysTilSpoil < 3
 							? 'text-yellow-500'
-							: ' text-stone-400'}">{item.dateAdded.fromNow()}</span
+							: ' text-stone-400'}">{dayjs(item.dateAdded).fromNow()}</span
 			>
 			<button
 				class="items-end transition hover:text-red-600"
