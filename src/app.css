@@ -4,57 +4,60 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @font-face {
-    font-family: 'Hershey-Noailles-Futura-Duplex';
-    font-style: normal;
-    font-weight: 500;
-    src: url('/Hershey-Noailles-Futura-Duplex-Regular.ttf');
-    src: local(''), url('/Hershey-Noailles-Futura-Duplex-Regular.ttf') format('truetype');
+	font-family: 'Hershey-Noailles-Futura-Duplex';
+	font-style: normal;
+	font-weight: 500;
+	src: url('/Hershey-Noailles-Futura-Duplex-Regular.ttf');
+	src:
+		local(''),
+		url('/Hershey-Noailles-Futura-Duplex-Regular.ttf') format('truetype');
 }
 
 @font-face {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Bold';
-    font-style: bold;
-    font-weight: 700;
-    src: url('/Hershey-Noailles-Futura-Duplex-Bold.ttf');
-    src: local(''), url('/Hershey-Noailles-Futura-Duplex-Bold.ttf') format('truetype');
+	font-family: 'Hershey-Noailles-Futura-Duplex-Bold';
+	font-style: bold;
+	font-weight: 700;
+	src: url('/Hershey-Noailles-Futura-Duplex-Bold.ttf');
+	src:
+		local(''),
+		url('/Hershey-Noailles-Futura-Duplex-Bold.ttf') format('truetype');
 }
 
-
 @font-face {
-    font-family: 'Hershey-Noailles-Times-Duplex-Italic-Light';
-    font-style: italic;
-    font-weight: 500;
-    src: url('/Hershey-Noailles-Times-Duplex-Italic-Light.ttf');
-    src: local(''), url('/Hershey-Noailles-Times-Duplex-Italic-Light.ttf') format('truetype');
+	font-family: 'Hershey-Noailles-Times-Duplex-Italic-Light';
+	font-style: italic;
+	font-weight: 500;
+	src: url('/Hershey-Noailles-Times-Duplex-Italic-Light.ttf');
+	src:
+		local(''),
+		url('/Hershey-Noailles-Times-Duplex-Italic-Light.ttf') format('truetype');
 }
 
 em {
-    font-family: 'UbuntuRegularItalic', arial, sans-serif;
-    font-weight: normal;
-    font-style: normal;
+	font-family: 'UbuntuRegularItalic', arial, sans-serif;
+	font-weight: normal;
+	font-style: normal;
 }
 
 b,
 strong {
-    font-family: 'Hershey-Noailles-Futura-Duplex-Bold', 'Hershey-Noailles-Futura-Duplex', arial, sans-serif;
-    font-weight: normal;
-    font-style: normal;
+	font-family: 'Hershey-Noailles-Futura-Duplex-Bold', 'Hershey-Noailles-Futura-Duplex', arial,
+		sans-serif;
+	font-weight: normal;
+	font-style: normal;
 }
-
 
 html {
-    font-family: 'Hershey-Noailles-Futura-Duplex', 'Arial', sans-serif;
-    background-color: rgb(255, 255, 248);
+	font-family: 'Hershey-Noailles-Futura-Duplex', 'Arial', sans-serif;
+	background-color: rgb(255, 255, 248);
 }
-
 
 input {
-    mix-blend-mode: multiply;
+	mix-blend-mode: multiply;
 }
 
-input.always-display-spinner[type=number]::-webkit-inner-spin-button,
-input.always-display-spinner[type=number]::-webkit-outer-spin-button {
-    opacity: 1;
+input.always-display-spinner[type='number']::-webkit-inner-spin-button,
+input.always-display-spinner[type='number']::-webkit-outer-spin-button {
+	opacity: 1;
 }

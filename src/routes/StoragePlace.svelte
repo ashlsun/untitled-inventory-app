@@ -4,17 +4,19 @@
 	import Item from './Item.svelte';
 	import { getRandomItems } from '$lib/itemGenerator';
 
-	// Component props
-	export let storagePlaceName;
+	// Props
+	let { storagePlaceName }: { storagePlaceName: string } = $props();
 
 	// State
-	let items = getRandomItems();
-	let newItemName = '';
-	let selectedIndex = -1;
+	let items = $state(getRandomItems());
+	let newItemName = $state('');
+	let selectedIndex = $state(-1);
 
 	// Methods and handlers
 	function setSelectedIndex(i: number) {
-		selectedIndex = i;
+		if (i < 0) selectedIndex = 0;
+		else if (i >= items.length) selectedIndex = items.length - 1;
+		else selectedIndex = i;
 	}
 
 	function editNewItem(event: Event) {
@@ -64,7 +66,7 @@
 </script>
 
 <div
-	class="m-3 inline-block h-fit min-w-72 max-w-96 rounded-sm border border-black p-1"
+	class="m-3 inline-block h-fit min-w-80 max-w-[420px] rounded-sm border border-black p-1"
 	role="tree"
 >
 	<h1 class="font-bold">{storagePlaceName} <span class="text-stone-400">({items.length})</span></h1>
@@ -74,18 +76,20 @@
 				{item}
 				{deleteItem}
 				isSelected={selectedIndex === i}
-				on:selected={() => {
-					setSelectedIndex(i);
+				onSelected={(amount = 0) => {
+					setSelectedIndex(i + amount);
 				}}
-				on:up={() => {
-					setSelectedIndex(i - 1);
+				onQuantityChange={(quantity) => {
+					if (quantity < 1) {
+						deleteItem(item.id);
+						return;
+					}
+
+					item.quantity = quantity;
 				}}
-				on:down={() => {
-					setSelectedIndex(i + 1);
-				}}
-				on:changeDateAdded={(event) => {
+				onChangeDate={(date) => {
 					try {
-						item.dateAdded = dayjs(event.detail);
+						item.dateAdded = dayjs(date);
 					} catch {
 						console.log('ok');
 					}
@@ -100,8 +104,8 @@
 	<input
 		class="mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400"
 		value={newItemName}
-		on:keypress={handleInputKeypress}
+		onkeypress={handleInputKeypress}
 		maxlength="20"
 	/>
-	<button class="transition hover:font-bold hover:text-emerald-700" on:click={addNewItem}>+</button>
+	<button class="transition hover:font-bold hover:text-emerald-700" onclick={addNewItem}>+</button>
 </div>
