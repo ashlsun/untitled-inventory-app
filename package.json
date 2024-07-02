@@ -48,10 +48,5 @@
 		"@tabler/icons-svelte": "^3.7.0",
 		"dayjs": "^1.11.11",
 		"uuid": "^10.0.0"
-	},
-	"overrides": {
-		"@tabler/icons-svelte": {
-			"svelte": "$svelte"
-		}
 	}
 }
