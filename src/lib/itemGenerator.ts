@@ -176,7 +176,7 @@ export function getRandomItems(
 	const numItems = randomIntFromInterval(minItems, maxItems);
 
 	// Array to hold our selected items
-	let selectedItems = [];
+	const selectedItems = [];
 
 	// Select random items
 	for (let i = 0; i < numItems && itemList.length > 0; i++) {
