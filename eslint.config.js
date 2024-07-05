@@ -5,5 +5,6 @@ export default antfu({
   rules: {
     'svelte/valid-compile': 'off',
     'no-console': 'off',
+    'svelte/html-quotes': ['warn', { prefer: 'double' }],
   },
 })

@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
   import dayjs from 'dayjs'
   import { v7 as uuid } from 'uuid'
   import Item from './Item.svelte'
@@ -70,11 +70,11 @@
 </script>
 
 <div
-  class='m-3 inline-block h-fit min-w-80 max-w-[420px] rounded-sm border border-black p-1'
-  role='tree'
+  class="m-3 inline-block h-fit min-w-80 max-w-[420px] rounded-sm border border-black p-1"
+  role="tree"
 >
-  <h1 class='font-bold'>{storagePlaceName} <span class='text-stone-400'>({items.length})</span></h1>
-  <div role='group'>
+  <h1 class="font-bold">{storagePlaceName} <span class="text-stone-400">({items.length})</span></h1>
+  <div role="group">
     {#each items as item, i (item.id)}
       <Item
         {item}
@@ -103,14 +103,14 @@
     {/each}
   </div>
   {#if items.length === 0}
-    <div class='text-stone-400'>Nothing in the {storagePlaceName}.</div>
+    <div class="text-stone-400">Nothing in the {storagePlaceName}.</div>
   {/if}
 
   <input
-    class='mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400'
+    class="mt-5 rounded-sm border border-black px-1 outline-emerald-600 transition placeholder:text-stone-400"
     value={newItemName}
     onkeypress={handleInputKeypress}
-    maxlength='20'
+    maxlength="20"
   />
-  <button class='transition hover:font-bold hover:text-emerald-700' onclick={addNewItem}>+</button>
+  <button class="transition hover:font-bold hover:text-emerald-700" onclick={addNewItem}>+</button>
 </div>

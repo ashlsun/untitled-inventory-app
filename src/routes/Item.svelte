@@ -1,4 +1,4 @@
-<script lang='ts' context='module'>
+<script lang="ts" context="module">
   import dayjs from 'dayjs'
   import relativeTime from 'dayjs/plugin/relativeTime'
   import updateLocale from 'dayjs/plugin/updateLocale'
@@ -18,7 +18,7 @@
   }
 </script>
 
-<script lang='ts'>
+<script lang="ts">
   const {
     item,
     deleteItem,
@@ -187,12 +187,12 @@
 <div
   bind:this={itemDiv}
   id={item.id}
-  data-testid='item-{item.id}'
+  data-testid="item-{item.id}"
   class="select-none rounded-sm px-2 pt-[0.5px] transition transition-margin focus:outline-none
     {isSelected ? 'bg-yellow-200' : ''}
     {isExpanded ? 'pb-2' : ''}"
-  tabindex='-1'
-  role='treeitem'
+  tabindex="-1"
+  role="treeitem"
   aria-selected={isSelected}
   aria-expanded={isExpanded}
   onfocus={() => onSelected()}
@@ -211,15 +211,15 @@
     isEditingName = false
   }}
 >
-  <div class='flex justify-between'>
+  <div class="flex justify-between">
     <span>
       <input
         bind:this={itemQuantityInput}
         bind:value={item.quantity}
-        type='number'
-        min='0'
-        max='99'
-        class='stealth max-w-12 text-center decoration-1 underline-offset-1 focus:underline focus:outline-none'
+        type="number"
+        min="0"
+        max="99"
+        class="stealth max-w-12 text-center decoration-1 underline-offset-1 focus:underline focus:outline-none"
         onkeydown={stopPropagation()}
         ondblclick={stopPropagation()}
         onchange={handleQuantityInputChange}
@@ -228,8 +228,8 @@
       <span
         bind:this={itemNameInput}
         bind:textContent={draftName}
-        role='textbox'
-        tabindex='-1'
+        role="textbox"
+        tabindex="-1"
         contenteditable
         class="rounded-sm decoration-1 underline-offset-2 focus:outline-none
           {isEditingName && 'underline'}"
@@ -255,7 +255,7 @@
           : ' text-stone-400'}">{item.dateAdded.fromNow()}</span
       >
       <button
-        class='items-end transition hover:text-red-600'
+        class="items-end transition hover:text-red-600"
         onclick={() => {
           deleteItem(item.id)
         }}
@@ -265,7 +265,7 @@
   </div>
   <div
     bind:this={childrenDiv}
-    role='group'
+    role="group"
     aria-hidden={!isExpanded}
     class="overflow-y-hidden bg-[#f3f1fd] px-3 text-sm mix-blend-multiply {isExpanded
       ? 'rounded-sm border-dashed border-stone-400'
@@ -274,24 +274,24 @@
       ? `${childrenDiv?.scrollHeight + 1}px`
       : '0px'};"
   >
-    <div role='treeitem' aria-selected='false'>
+    <div role="treeitem" aria-selected="false">
       Edit date added:
       <input
         bind:this={dateAddedInput}
-        type='date'
-        class='border-1 my-1 rounded-sm border border-dashed border-stone-400 px-1'
+        type="date"
+        class="border-1 my-1 rounded-sm border border-dashed border-stone-400 px-1"
         bind:value={draftDateAdded}
         onkeydown={stopPropagation(handleDateAddedKeydown)}
         ondblclick={stopPropagation()}
         onblur={() => onChangeDate(draftDateAdded)}
       />
     </div>
-    <div role='treeitem' aria-selected='false'>
+    <div role="treeitem" aria-selected="false">
       Edit shelf life:
       <input
         bind:this={shelfLifeInput}
-        type='number'
-        class='always-display-spinner border-1 sm mb-1 ml-3 w-fit max-w-12 rounded border border-dashed border-stone-400 text-center'
+        type="number"
+        class="always-display-spinner border-1 sm mb-1 ml-3 w-fit max-w-12 rounded border border-dashed border-stone-400 text-center"
         bind:value={draftShelfLife}
         onkeydown={stopPropagation()}
         ondblclick={stopPropagation()}
