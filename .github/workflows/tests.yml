@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  run-tests:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,3 +20,31 @@ jobs:
 
       - name: Run Tests
         run: bun run test
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun i
+
+      - name: Run Lint
+        run: bun run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun i
+
+      - name: Run Typecheck
+        run: bun run typecheck

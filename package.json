@@ -11,7 +11,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest --reporter default",
     "test:ui": "vitest --ui",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tabler/icons-svelte": "^3.7.0",
