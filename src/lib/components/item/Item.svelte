@@ -240,7 +240,8 @@
         role="textbox"
         tabindex="-1"
         contenteditable
-        class="rounded-sm decoration-1 focus:outline-none underline-offset-2{isEditingName && 'underline'}"
+        class="rounded-sm decoration-1 focus:outline-none underline-offset-2
+          {isEditingName && 'underline'}"
         onkeydown={stopPropagation(handleKeyDownOnName)}
         onpaste={handlePaste}
         onclick={() => {
@@ -254,14 +255,15 @@
 
     <span>
       <span
-        class="italic mix-blend-multiply{daysTilSpoil < 1
-          ? 'text-red-500'
-          : daysTilSpoil < 2
-          ? 'text-orange-500'
-          : daysTilSpoil < 3
-          ? 'text-yellow-500'
-          : ' text-stone-400'}">{dayjs(item.dateAdded).fromNow()}</span
-      >
+        class="italic mix-blend-multiply
+          {daysTilSpoil < 1
+            ? 'text-red-500'
+            : daysTilSpoil < 2
+            ? 'text-orange-500'
+            : daysTilSpoil < 3
+            ? 'text-yellow-500'
+            : ' text-stone-400'}">{dayjs(item.dateAdded).fromNow()}
+      </span>
       <button
         class="transition items-end hover:text-red-600"
         onclick={() => {
@@ -275,12 +277,10 @@
     bind:this={childrenDiv}
     role="group"
     aria-hidden={!isExpanded}
-    class="mix-blend-multiply text-sm overflow-y-hidden bg-[#f3f1fd] px-3{isExpanded
-      ? 'rounded-sm border-dashed border-stone-400'
-      : ''}"
-    style="transition: all 0.1s ease-in-out; height: {isExpanded
-      ? `${childrenDiv?.scrollHeight + 1}px`
-      : '0px'};"
+    class="mix-blend-multiply text-sm overflow-y-hidden bg-[#f3f1fd] px-3
+      {isExpanded ? 'rounded-sm border-dashed border-stone-400' : ''}"
+    style="transition: all 0.1s ease-in-out;
+      height: {isExpanded ? `${childrenDiv?.scrollHeight + 1}px` : '0px'};"
   >
     <div role="treeitem" aria-selected="false">
       Edit date added:
