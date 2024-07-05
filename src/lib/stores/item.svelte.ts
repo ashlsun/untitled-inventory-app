@@ -20,14 +20,20 @@ export function createItemStore() {
       if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
         list.push({
           id: uuid(),
-          dateAdded: dayjs(),
+          dateAdded: dayjs().format('YYYY-MM-DD'),
           name: name.slice(itemList[0].length).trim(),
           quantity: Number(itemList[0]),
           shelfLife: 5,
         })
       }
       else {
-        list.push({ id: uuid(), dateAdded: dayjs(), name, quantity: 1, shelfLife: 5 })
+        list.push({
+          id: uuid(),
+          dateAdded: dayjs().format('YYYY-MM-DD'),
+          name,
+          quantity: 1,
+          shelfLife: 5,
+        })
       }
 
       selected = list.length

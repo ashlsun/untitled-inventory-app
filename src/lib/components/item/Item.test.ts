@@ -1,6 +1,5 @@
 import { type RenderResult, cleanup, fireEvent, render } from '@testing-library/svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import dayjs from 'dayjs'
 import ItemWrappedInTree from './ItemWrappedInTree.svelte'
 
 describe('the Item component', () => {
@@ -8,7 +7,7 @@ describe('the Item component', () => {
     id: '1',
     name: 'Test Item',
     quantity: 1,
-    dateAdded: dayjs(),
+    dateAdded: '2000-01-02',
     shelfLife: 20,
   }
 
@@ -42,7 +41,7 @@ describe('the Item component', () => {
       id: '1',
       name: 'Test Item',
       quantity: 1,
-      dateAdded: dayjs(),
+      dateAdded: '2000-01-02',
       shelfLife: 10,
     }
 

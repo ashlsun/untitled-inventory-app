@@ -51,7 +51,7 @@
         }}
         onChangeDate={(date) => {
           try {
-            item.dateAdded = dayjs(date)
+            item.dateAdded = dayjs(date).format('YYYY-MM-DD')
           }
           catch {
             console.log('ok')

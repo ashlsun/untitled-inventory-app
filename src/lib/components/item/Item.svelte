@@ -33,7 +33,7 @@
   let isEditingName = $state(false)
   let draftName = $state(item.name)
   let draftShelfLife = $state(item.shelfLife)
-  let draftDateAdded = $state(item.dateAdded.format('YYYY-MM-DD'))
+  let draftDateAdded = $state(item.dateAdded)
 
   // DOM nodes
   let itemDiv: HTMLDivElement
@@ -44,7 +44,9 @@
   let shelfLifeInput: HTMLInputElement
 
   // Reactive declarations
-  const daysTilSpoil = $derived(item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day'))
+  const daysTilSpoil = $derived(
+    dayjs(item.dateAdded).add(item.shelfLife, 'day').diff(dayjs(), 'day'),
+  )
 
   $effect(() => {
     if (isSelected)
@@ -165,7 +167,7 @@
       onChangeDate(draftDateAdded)
     }
     else if (event.key === 'Escape') {
-      draftDateAdded = item.dateAdded.format('YYYY-MM-DD')
+      draftDateAdded = item.dateAdded
       dateAddedInput.blur()
     }
   }
@@ -248,7 +250,7 @@
           ? 'text-orange-500'
           : daysTilSpoil < 3
           ? 'text-yellow-500'
-          : ' text-stone-400'}">{item.dateAdded.fromNow()}</span
+          : ' text-stone-400'}">{dayjs(item.dateAdded).fromNow()}</span
       >
       <button
         class="transition items-end hover:text-red-600"
