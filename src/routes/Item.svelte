@@ -188,8 +188,7 @@
   bind:this={itemDiv}
   id={item.id}
   data-testid="item-{item.id}"
-  class="select-none rounded-sm px-2 pt-[0.5px] transition transition-margin focus:outline-none
-    {isSelected ? 'bg-yellow-200' : ''}
+  class="transition select-none rounded-sm px-2 pt-[0.5px] transition-margin focus:outline-none{isSelected ? 'bg-yellow-200' : ''}
     {isExpanded ? 'pb-2' : ''}"
   tabindex="-1"
   role="treeitem"
@@ -219,7 +218,7 @@
         type="number"
         min="0"
         max="99"
-        class="stealth max-w-12 text-center decoration-1 underline-offset-1 focus:underline focus:outline-none"
+        class="focus:outline-none decoration-1 stealth max-w-12 text-center underline-offset-1 focus:underline"
         onkeydown={stopPropagation()}
         ondblclick={stopPropagation()}
         onchange={handleQuantityInputChange}
@@ -231,8 +230,7 @@
         role="textbox"
         tabindex="-1"
         contenteditable
-        class="rounded-sm decoration-1 underline-offset-2 focus:outline-none
-          {isEditingName && 'underline'}"
+        class="rounded-sm decoration-1 focus:outline-none underline-offset-2{isEditingName && 'underline'}"
         onkeydown={stopPropagation(handleKeyDownOnName)}
         onpaste={handlePaste}
         onclick={() => {
@@ -246,7 +244,7 @@
 
     <span>
       <span
-        class="italic mix-blend-multiply {daysTilSpoil < 1
+        class="italic mix-blend-multiply{daysTilSpoil < 1
           ? 'text-red-500'
           : daysTilSpoil < 2
           ? 'text-orange-500'
@@ -255,7 +253,7 @@
           : ' text-stone-400'}">{item.dateAdded.fromNow()}</span
       >
       <button
-        class="items-end transition hover:text-red-600"
+        class="transition items-end hover:text-red-600"
         onclick={() => {
           deleteItem(item.id)
         }}
@@ -267,7 +265,7 @@
     bind:this={childrenDiv}
     role="group"
     aria-hidden={!isExpanded}
-    class="overflow-y-hidden bg-[#f3f1fd] px-3 text-sm mix-blend-multiply {isExpanded
+    class="mix-blend-multiply text-sm overflow-y-hidden bg-[#f3f1fd] px-3{isExpanded
       ? 'rounded-sm border-dashed border-stone-400'
       : ''}"
     style="transition: all 0.1s ease-in-out; height: {isExpanded
@@ -279,7 +277,7 @@
       <input
         bind:this={dateAddedInput}
         type="date"
-        class="border-1 my-1 rounded-sm border border-dashed border-stone-400 px-1"
+        class="rounded-sm border-1 my-1 border border-dashed border-stone-400 px-1"
         bind:value={draftDateAdded}
         onkeydown={stopPropagation(handleDateAddedKeydown)}
         ondblclick={stopPropagation()}
@@ -291,7 +289,7 @@
       <input
         bind:this={shelfLifeInput}
         type="number"
-        class="always-display-spinner border-1 sm mb-1 ml-3 w-fit max-w-12 rounded border border-dashed border-stone-400 text-center"
+        class="border-1 max-w-12 border border-dashed border-stone-400 text-center always-display-spinner sm mb-1 ml-3 w-fit rounded"
         bind:value={draftShelfLife}
         onkeydown={stopPropagation()}
         ondblclick={stopPropagation()}
