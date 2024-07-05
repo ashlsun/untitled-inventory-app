@@ -16,8 +16,6 @@ export function createItemStore() {
       if (name === '')
         return
 
-      console.log('name:', name)
-
       const itemList = name.split(' ')
       if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
         list.push({
