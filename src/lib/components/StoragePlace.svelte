@@ -17,8 +17,6 @@
 
   // Handlers
   function handleInputKeypress(event: KeyboardEvent) {
-    newItemName = (event.target as HTMLInputElement).value
-
     if (event.key === 'Enter')
       addItem()
   }
@@ -47,7 +45,7 @@
 
   <input
     class="rounded-sm border border-black px-1 transition mt-5 outline-emerald-600 placeholder:text-stone-400"
-    value={newItemName}
+    bind:value={newItemName}
     onkeypress={handleInputKeypress}
     maxlength="20"
   />

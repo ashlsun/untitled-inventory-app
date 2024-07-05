@@ -16,13 +16,15 @@ export function createItemStore() {
       if (name === '')
         return
 
+      console.log('name:', name)
+
       const itemList = name.split(' ')
       if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
         list.push({
           id: uuid(),
           dateAdded: dayjs().format('YYYY-MM-DD'),
           name: name.slice(itemList[0].length).trim(),
-          quantity: Number(itemList[0]),
+          quantity: Math.min(Number(itemList[0]), 99),
           shelfLife: 5,
         })
       }
