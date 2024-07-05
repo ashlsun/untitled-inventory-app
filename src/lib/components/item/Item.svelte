@@ -12,8 +12,6 @@
 
   export type Events = {
     onSelected: (index?: number) => void
-    onQuantityChange: (quantity: number) => void
-    onChangeDate: (date: string) => void
     onDelete: (itemId: string) => void
   }
 </script>
@@ -23,8 +21,6 @@
     item = $bindable(),
     isSelected,
     onSelected,
-    onQuantityChange,
-    onChangeDate,
     onDelete,
   }: Props & Events = $props()
 
@@ -76,7 +72,21 @@
     },
   })
 
-  // Methods and handlers
+  // Methods
+  function changeDate() {
+    item.dateAdded = dayjs(draftDateAdded).format('YYYY-MM-DD')
+  }
+
+  function changeQuantity(quantity: number) {
+    if (quantity < 1) {
+      onDelete(item.id)
+      return
+    }
+
+    item.quantity = quantity
+  }
+
+  // Handlers
   function handleKeyDownOnName(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       item.name = draftName
@@ -152,10 +162,10 @@
       onSelected(1)
     }
     else if (event.key === 'ArrowRight') {
-      onQuantityChange(item.quantity + 1)
+      changeQuantity(item.quantity + 1)
     }
     else if (event.key === 'ArrowLeft') {
-      onQuantityChange(item.quantity - 1)
+      changeQuantity(item.quantity - 1)
     }
     else {
       console.log(event)
@@ -164,7 +174,7 @@
 
   function handleDateAddedKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
-      onChangeDate(draftDateAdded)
+      changeDate()
     }
     else if (event.key === 'Escape') {
       draftDateAdded = item.dateAdded
@@ -206,7 +216,7 @@
     isExpanded = !isExpanded
   }}
   onblur={() => {
-    draftName = item.name
+    draftName = item?.name
     isEditingName = false
   }}
 >
@@ -281,7 +291,7 @@
         bind:value={draftDateAdded}
         onkeydown={stopPropagation(handleDateAddedKeydown)}
         ondblclick={stopPropagation()}
-        onblur={() => onChangeDate(draftDateAdded)}
+        onblur={changeDate}
       />
     </div>
     <div role="treeitem" aria-selected="false">

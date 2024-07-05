@@ -1,5 +1,4 @@
 <script lang="ts">
-  import dayjs from 'dayjs'
   import Item from '$lib/components/item/Item.svelte'
   import { createItemStore } from '$lib/stores/item.svelte'
 
@@ -10,19 +9,16 @@
   const items = createItemStore()
   let newItemName = $state('')
 
-  // Handlers
+  // Methods
   function addItem() {
     items.add(newItemName)
     newItemName = ''
   }
 
-  function editNewItem(event: Event) {
-    const target = event.target as HTMLInputElement
-    newItemName = target.value
-  }
-
+  // Handlers
   function handleInputKeypress(event: KeyboardEvent) {
-    editNewItem(event)
+    newItemName = (event.target as HTMLInputElement).value
+
     if (event.key === 'Enter')
       addItem()
   }
@@ -40,22 +36,6 @@
         isSelected={items.selected === i}
         onSelected={(amount = 0) => {
           items.select(i + amount)
-        }}
-        onQuantityChange={(quantity) => {
-          if (quantity < 1) {
-            items.delete(item.id)
-            return
-          }
-
-          item.quantity = quantity
-        }}
-        onChangeDate={(date) => {
-          try {
-            item.dateAdded = dayjs(date).format('YYYY-MM-DD')
-          }
-          catch {
-            console.log('ok')
-          }
         }}
         onDelete={items.delete}
       />
