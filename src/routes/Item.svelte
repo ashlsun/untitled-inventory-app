@@ -14,12 +14,12 @@
 	export type Events = {
 		onSelected: (index?: number) => void;
 		onQuantityChange: (quantity: number) => void;
-		onChangeDate: (date: string) => void;
+		onDateChange: (date: string) => void;
 	};
 </script>
 
 <script lang="ts">
-	let { item, deleteItem, isSelected, onSelected, onQuantityChange, onChangeDate }: Props & Events =
+	let { item, deleteItem, isSelected, onSelected, onQuantityChange, onDateChange }: Props & Events =
 		$props();
 
 	// State
@@ -27,7 +27,7 @@
 	let isEditingName = $state(false);
 	let draftName = $state(item.name);
 	let draftShelfLife = $state(item.shelfLife);
-	let draftDateAdded = $state(item.dateAdded.format('YYYY-MM-DD'));
+	let draftDateAdded = $state(item.dateAdded);
 
 	// DOM nodes
 	let itemDiv: HTMLDivElement;
@@ -38,7 +38,9 @@
 	let shelfLifeInput: HTMLInputElement;
 
 	// Reactive declarations
-	let daysTilSpoil = $derived(item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day'));
+	let daysTilSpoil = $derived(
+		dayjs(item.dateAdded).add(item.shelfLife, 'day').diff(dayjs(), 'day')
+	);
 
 	$effect(() => {
 		if (isSelected) {
@@ -147,9 +149,9 @@
 
 	function handleDateAddedKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
-			onChangeDate(draftDateAdded);
+			onDateChange(draftDateAdded);
 		} else if (event.key === 'Escape') {
-			draftDateAdded = item.dateAdded.format('YYYY-MM-DD');
+			draftDateAdded = item.dateAdded;
 			dateAddedInput.blur();
 		}
 	}
@@ -234,7 +236,7 @@
 						? 'text-orange-500'
 						: daysTilSpoil < 3
 							? 'text-yellow-500'
-							: ' text-stone-400'}">{item.dateAdded.fromNow()}</span
+							: ' text-stone-400'}">{dayjs(item.dateAdded).fromNow()}</span
 			>
 			<button
 				class="items-end transition hover:text-red-600"
@@ -265,7 +267,7 @@
 				bind:value={draftDateAdded}
 				onkeydown={stopPropagation(handleDateAddedKeydown)}
 				ondblclick={stopPropagation()}
-				onblur={() => onChangeDate(draftDateAdded)}
+				onblur={() => onDateChange(draftDateAdded)}
 			/>
 		</div>
 		<div role="treeitem" aria-selected="false">

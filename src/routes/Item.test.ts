@@ -8,7 +8,7 @@ describe('The Item component', () => {
 		id: '1',
 		name: 'Test Item',
 		quantity: 1,
-		dateAdded: dayjs(),
+		dateAdded: '2000-01-02',
 		shelfLife: 20
 	};
 
@@ -27,7 +27,7 @@ describe('The Item component', () => {
 				item: mockItem,
 				deleteItem: mockDeleteItem,
 				isSelected: false,
-				onChangeDate: vi.fn(),
+				onDateChange: vi.fn(),
 				onQuantityChange,
 				onSelected: vi.fn()
 			}
@@ -42,7 +42,7 @@ describe('The Item component', () => {
 			id: '1',
 			name: 'Test Item',
 			quantity: 1,
-			dateAdded: dayjs(),
+			dateAdded: '2000-01-02',
 			shelfLife: 10
 		};
 

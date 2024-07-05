@@ -4,6 +4,6 @@ export type StoredItem = {
 	id: string;
 	name: string;
 	quantity: number;
-	dateAdded: Dayjs;
+	dateAdded: string;
 	shelfLife: number;
 };

@@ -33,7 +33,7 @@
 				...items,
 				{
 					id: uuid(),
-					dateAdded: dayjs(),
+					dateAdded: dayjs().format('YYYY-MM-DD'),
 					name: newItemName.slice(newItemList[0].length).trim(),
 					quantity: Number(newItemList[0]),
 					shelfLife: 5
@@ -42,7 +42,13 @@
 		} else {
 			items = [
 				...items,
-				{ id: uuid(), dateAdded: dayjs(), name: newItemName, quantity: 1, shelfLife: 5 }
+				{
+					id: uuid(),
+					dateAdded: dayjs().format('YYYY-MM-DD'),
+					name: newItemName,
+					quantity: 1,
+					shelfLife: 5
+				}
 			];
 		}
 
@@ -87,9 +93,9 @@
 
 					item.quantity = quantity;
 				}}
-				onChangeDate={(date) => {
+				onDateChange={(date) => {
 					try {
-						item.dateAdded = dayjs(date);
+						item.dateAdded = dayjs(date).format('YYYY-MM-DD');
 					} catch {
 						console.log('ok');
 					}
