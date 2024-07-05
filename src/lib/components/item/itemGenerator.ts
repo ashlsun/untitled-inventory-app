@@ -1,7 +1,6 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import { randomIntFromInterval } from './utils'
-import type { StoredItem } from './types'
+import type { StoredItem } from '$lib/types'
 
 export const possibleItems = [
   {
@@ -165,25 +164,4 @@ export const possibleItems = [
     dateAdded: dayjs().subtract(4, 'day'),
     shelfLife: 7,
   },
-]
-
-export function getRandomItems(
-  itemList: StoredItem[] = possibleItems,
-  minItems = 3,
-  maxItems = 10,
-) {
-  // Determine the number of items to select
-  const numItems = randomIntFromInterval(minItems, maxItems)
-
-  // Array to hold our selected items
-  const selectedItems = []
-
-  // Select random items
-  for (let i = 0; i < numItems && itemList.length > 0; i++) {
-    const randomIndex = Math.floor(Math.random() * itemList.length)
-    selectedItems.push(itemList[randomIndex])
-    itemList.splice(randomIndex, 1)
-  }
-
-  return selectedItems
-}
+] satisfies StoredItem[]

@@ -5,8 +5,8 @@
 -->
 
 <script lang="ts">
-  import Item from '../routes/Item.svelte'
-  import type { Events, Props } from '../routes/Item.svelte'
+  import Item from './Item.svelte'
+  import type { Events, Props } from './Item.svelte'
 
   const { ...rest }: Props & Events = $props()
 </script>

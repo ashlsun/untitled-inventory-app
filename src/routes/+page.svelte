@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StoragePlace from './StoragePlace.svelte'
+  import StoragePlace from '$lib/components/StoragePlace.svelte'
 
   let showTips = $state(false)
   let tips: HTMLDivElement | null = $state(null)

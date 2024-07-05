@@ -7,7 +7,6 @@
 
   export type Props = {
     item: StoredItem
-    deleteItem: (itemId: string) => void
     isSelected: boolean
   }
 
@@ -15,17 +14,18 @@
     onSelected: (index?: number) => void
     onQuantityChange: (quantity: number) => void
     onChangeDate: (date: string) => void
+    onDelete: (itemId: string) => void
   }
 </script>
 
 <script lang="ts">
   const {
-    item,
-    deleteItem,
+    item = $bindable(),
     isSelected,
     onSelected,
     onQuantityChange,
     onChangeDate,
+    onDelete,
   }: Props & Events = $props()
 
   // State
@@ -47,12 +47,10 @@
   const daysTilSpoil = $derived(item.dateAdded.add(item.shelfLife, 'day').diff(dayjs(), 'day'))
 
   $effect(() => {
-    if (isSelected) {
+    if (isSelected)
       itemDiv.focus()
-    }
-    else {
+    else
       isExpanded = false
-    }
   })
 
   // Dayjs configuration
@@ -136,10 +134,10 @@
     if (event.key === 'Delete' || event.key === 'Backspace') {
       if (isExpanded) {
         isExpanded = false
-        setTimeout(() => deleteItem(itemId), 70)
+        setTimeout(() => onDelete(itemId), 70)
       }
       else {
-        deleteItem(itemId)
+        onDelete(itemId)
       }
     }
     else if (event.key === 'Enter') {
@@ -174,12 +172,12 @@
 
   function handleQuantityInputChange(event: Event) {
     const target = event.target as HTMLInputElement
-    if (target.value === '0') {
-      setTimeout(() => deleteItem(item.id), 100)
-    }
+    if (target.value === '0')
+      setTimeout(() => onDelete(item.id), 100)
+
     if (target.value === '') {
       target.value = '0'
-      setTimeout(() => deleteItem(item.id), 300)
+      setTimeout(() => onDelete(item.id), 300)
     }
   }
 </script>
@@ -188,7 +186,8 @@
   bind:this={itemDiv}
   id={item.id}
   data-testid="item-{item.id}"
-  class="transition select-none rounded-sm px-2 pt-[0.5px] transition-margin focus:outline-none{isSelected ? 'bg-yellow-200' : ''}
+  class="transition select-none rounded-sm px-2 pt-[0.5px] focus:outline-none
+    {isSelected ? 'bg-yellow-200' : ''}
     {isExpanded ? 'pb-2' : ''}"
   tabindex="-1"
   role="treeitem"
@@ -198,9 +197,8 @@
   onkeydown={event => handleKeyDownOnItem(event, item.id)}
   onclick={(event) => {
     // to remove the caret/selection inserted at itemNameInput
-    if (event.target !== itemNameInput) {
+    if (event.target !== itemNameInput)
       itemNameInput.blur()
-    }
   }}
   ondblclick={() => {
     isExpanded = !isExpanded
@@ -255,7 +253,7 @@
       <button
         class="transition items-end hover:text-red-600"
         onclick={() => {
-          deleteItem(item.id)
+          onDelete(item.id)
         }}
       >delete
       </button>
@@ -293,7 +291,9 @@
         bind:value={draftShelfLife}
         onkeydown={stopPropagation()}
         ondblclick={stopPropagation()}
-        onblur={() => (item.shelfLife = draftShelfLife)}
+        onblur={() => {
+          item.shelfLife = draftShelfLife
+        }}
       />
       days
     </div>

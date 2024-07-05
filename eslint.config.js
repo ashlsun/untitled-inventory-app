@@ -6,5 +6,6 @@ export default antfu({
     'svelte/valid-compile': 'off',
     'no-console': 'off',
     'svelte/html-quotes': ['warn', { prefer: 'double' }],
+    'curly': ['warn', 'multi-or-nest', 'consistent'],
   },
 })

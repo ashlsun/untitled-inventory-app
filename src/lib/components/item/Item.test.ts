@@ -1,7 +1,7 @@
 import { type RenderResult, cleanup, fireEvent, render } from '@testing-library/svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import dayjs from 'dayjs'
-import ItemWrappedInTree from '$lib/ItemWrappedInTree.svelte'
+import ItemWrappedInTree from './ItemWrappedInTree.svelte'
 
 describe('the Item component', () => {
   let mockItem = {
@@ -25,7 +25,7 @@ describe('the Item component', () => {
     component = render(ItemWrappedInTree, {
       props: {
         item: mockItem,
-        deleteItem: mockDeleteItem,
+        onDelete: mockDeleteItem,
         isSelected: false,
         onChangeDate: vi.fn(),
         onQuantityChange,
