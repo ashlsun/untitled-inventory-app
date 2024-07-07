@@ -3,7 +3,7 @@
 More info: [Bun Docs](https://bun.sh/docs)
 
 >[!TIP]
-> just `bun` can be used as shorthand for pretty much all of its commands.
+> just `bun` can be used as a shorthand for *almost* all of its commands.
 
 ## Install
 
@@ -33,7 +33,7 @@ bun dev
 ## Build
 
 ```bash
-bun build
+bun run build
 ```
 
 ## Running
