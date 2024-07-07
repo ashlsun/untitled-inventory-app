@@ -1,38 +1,72 @@
-# create-svelte
+# Bun bun bun
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+More info: [Bun Docs](https://bun.sh/docs)
 
-## Creating a project
+>[!TIP]
+> just `bun` can be used as shorthand for pretty much all of its commands.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Install
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Install all dependencies
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun i
 ```
 
-## Building
-
-To create a production version of your app:
+### Install a specific package
 
 ```bash
-npm run build
+bun i <package>
 ```
 
-You can preview the production build with `npm run preview`.
+#### Flags
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+- `-g` to install globally
+- `-D` to install as a dev dependency
+
+## Development
+
+```bash
+bun dev
+```
+
+## Build
+
+```bash
+bun build
+```
+
+## Running
+
+### Scripts
+
+```bash
+bun run <script>
+```
+
+Example: `bun lint`
+
+### Binaries
+
+```bash
+bunx <binary>
+```
+
+`bun run` also works
+
+Example: `bun eslint`
+
+>[!NOTE]
+> To use the Bun runtime (instead of Node.js), pass `--bun` to the command: `bunx --bun vite dev`
+
+### Files
+
+```bash
+bun run <file>
+```
+
+Example: `bun src/index.ts`
+
+## `ni`
+
+To forget about package managers: [antfu/ni](https://github.com/antfu-collective/ni?tab=readme-ov-file#ni)
