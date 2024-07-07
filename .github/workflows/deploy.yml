@@ -11,16 +11,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Bun
-      - uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v1
 
       - name: Install dependencies
         run: bun install
 
-      - name: build
+      - name: Build site
         env:
           BASE_PATH: '/${{ github.event.repository.name }}'
         run: |
-          bun build
+          bun run build
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
