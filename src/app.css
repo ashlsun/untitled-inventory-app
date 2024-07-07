@@ -6,11 +6,7 @@
 	font-family: 'Hershey-Noailles-Futura-Duplex';
 	font-style: normal;
 	font-weight: 500;
-	src: url('/Hershey-Noailles-Futura-Duplex-Regular.woff');
-	src:
-		local(''),
-		url('/Hershey-Noailles-Futura-Duplex-Regular.woff') format('woff'),
-		url('/Hershey-Noailles-Futura-Duplex-Regular.ttf') format('truetype');
+	src: url('/Hershey-Noailles-Futura-Duplex-Regular.woff') format('woff');
 	font-display: swap;
 }
 
@@ -18,11 +14,7 @@
 	font-family: 'Hershey-Noailles-Futura-Duplex-Bold';
 	font-style: bold;
 	font-weight: 700;
-	src: url('/Hershey-Noailles-Futura-Duplex-Bold.woff');
-	src:
-		local(''),
-		url('/Hershey-Noailles-Futura-Duplex-Bold.woff') format('woff'),
-		url('/Hershey-Noailles-Futura-Duplex-Bold.ttf') format('truetype');
+	src: url('/Hershey-Noailles-Futura-Duplex-Bold.woff') format('woff');
 	font-display: swap;
 }
 
@@ -30,11 +22,7 @@
 	font-family: 'Hershey-Noailles-Times-Duplex-Italic-Light';
 	font-style: italic;
 	font-weight: 500;
-	src: url('/Hershey-Noailles-Times-Duplex-Italic-Light.woff');
-	src:
-		local(''),
-		url('/Hershey-Noailles-Times-Duplex-Italic-Light.woff') format('woff'),
-		url('/Hershey-Noailles-Times-Duplex-Italic-Light.ttf') format('truetype');
+	src: url('/Hershey-Noailles-Times-Duplex-Italic-Light.woff') format('woff');
 	font-display: swap;
 }
 
