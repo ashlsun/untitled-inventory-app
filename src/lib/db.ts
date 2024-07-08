@@ -22,33 +22,6 @@ async function createTables(): Promise<void> {
       date_added DATE,
       storage TEXT
     );
-
-    CREATE TABLE IF NOT EXISTS common_items (
-      id SERIAL PRIMARY KEY,
-      name TEXT UNIQUE NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS tags (
-      id SERIAL PRIMARY KEY,
-      name TEXT UNIQUE NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS item_tags (
-      item_id INTEGER,
-      tag_id INTEGER,
-      PRIMARY KEY (item_id, tag_id),
-      FOREIGN KEY (item_id) REFERENCES common_items(id),
-      FOREIGN KEY (tag_id) REFERENCES tags(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS shelf_lives (
-      id SERIAL PRIMARY KEY,
-      item_id INTEGER,
-      storage TEXT NOT NULL,
-      duration INTEGER NOT NULL,
-      duration_unit TEXT NOT NULL,
-      FOREIGN KEY (item_id) REFERENCES common_items(id)
-    );
   `)
 }
 
