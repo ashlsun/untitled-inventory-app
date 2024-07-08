@@ -7,6 +7,9 @@ export default defineConfig({
     sveltekit(),
     svelteTesting(),
   ],
+  optimizeDeps: {
+    exclude: ['@electric-sql/pglite'],
+  },
   test: {
     environment: 'jsdom',
     coverage: {
@@ -16,4 +19,19 @@ export default defineConfig({
     reporters: ['html', 'default'],
     include: ['src/**/*.{test,spec}.{js,ts}'],
   },
+  // build: {
+  //   commonjsOptions: {
+  //     include: [/@electric-sql\/pglite/, /node_modules/],
+  //   },
+  // },
+  // server: {
+  //   fs: {
+  //     allow: ['..'],
+  //   },
+  // },
+  // resolve: {
+  //   alias: {
+  //     '@electric-sql/pglite': '@electric-sql/pglite/dist/index.js',
+  //   },
+  // },
 })

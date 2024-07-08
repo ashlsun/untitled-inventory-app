@@ -3,6 +3,10 @@ import dayjs from 'dayjs'
 import { possibleItems } from '$lib/components/item/itemGenerator'
 import { randomIntFromInterval } from '$lib/utils'
 import type { StoredItem } from '$lib/types'
+import { addFoodItem, getFoodItems } from '$lib/db'
+
+const foodItems = await getFoodItems('fridge')
+console.log(foodItems)
 
 export function createItemStore() {
   const list = $state<StoredItem[]>(getRandomItems())
@@ -18,13 +22,16 @@ export function createItemStore() {
 
       const itemList = name.split(' ')
       if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
+        const itemName = name.slice(itemList[0].length).trim()
+        const itemQuantity = Math.min(Number(itemList[0]), 99)
         list.push({
           id: uuid(),
           dateAdded: dayjs().format('YYYY-MM-DD'),
-          name: name.slice(itemList[0].length).trim(),
-          quantity: Math.min(Number(itemList[0]), 99),
+          name: itemName,
+          quantity: itemQuantity,
           shelfLife: 5,
         })
+        addFoodItem(itemName, itemQuantity, 'fridge')
       }
       else {
         list.push({
@@ -35,6 +42,7 @@ export function createItemStore() {
           shelfLife: 5,
         })
       }
+      addFoodItem(name, 1, 'fridge')
 
       selected = list.length
     },
