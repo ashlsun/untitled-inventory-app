@@ -13,9 +13,10 @@ export async function initDb(): Promise<void> {
 }
 
 async function createTables(): Promise<void> {
+  // await db.exec(`DROP TABLE IF EXISTS  food_item`)
   await db.exec(`
     CREATE TABLE IF NOT EXISTS food_items (
-      id SERIAL PRIMARY KEY,
+      id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       quantity INTEGER,
       date_added DATE,
@@ -52,20 +53,20 @@ async function createTables(): Promise<void> {
 }
 
 interface FoodItem {
-  id: number
+  id: string
   name: string
   quantity: number
   date_added: string
   storage: string
 }
 
-export async function addFoodItem(name: string, quantity: number, storage: string): Promise<void> {
+export async function addFoodItem(id: string, name: string, quantity: number, storage: string): Promise<void> {
   await initDb()
   const date_added = new Date().toISOString().split('T')[0]
 
   await db.query<FoodItem>(
-    'INSERT INTO food_items (name, quantity, date_added, storage) VALUES ($1, $2, $3, $4)',
-    [name, quantity, date_added, storage],
+    'INSERT INTO food_items (id, name, quantity, date_added, storage) VALUES ($1, $2, $3, $4, $5)',
+    [id, name, quantity, date_added, storage],
   )
 }
 
@@ -75,15 +76,15 @@ export async function getFoodItems(storage: string): Promise<FoodItem[]> {
   return result.rows
 }
 
-export async function updateFoodItem(id: number, name: string, quantity: number): Promise<void> {
+export async function updateFoodItem(id: string, name: string, quantity: number, dateAdded: string): Promise<void> {
   await initDb()
   await db.query(
-    'UPDATE food_items SET name = $1, quantity = $2 WHERE id = $3',
-    [name, quantity, id],
+    'UPDATE food_items SET name = $1, quantity = $2, dateAdded = $3 WHERE id = $4',
+    [name, quantity, dateAdded, id],
   )
 }
 
-export async function deleteFoodItem(id: number): Promise<void> {
+export async function deleteFoodItem(id: string): Promise<void> {
   await initDb()
   await db.query('DELETE FROM food_items WHERE id = $1', [id])
 }
