@@ -4,7 +4,6 @@
   import updateLocale from 'dayjs/plugin/updateLocale'
   import { stopPropagation } from '$lib/utils'
   import { type StoredItem } from '$lib/types'
-  import { db } from '$lib/db'
 
   export type Props = {
     item: StoredItem
@@ -24,6 +23,7 @@
     isSelected,
     onSelected,
     onDelete,
+    onUpdate,
   }: Props & Events = $props()
 
   // State
@@ -77,7 +77,7 @@
   // Methods
   function changeDate() {
     item.dateAdded = dayjs(draftDateAdded).format('YYYY-MM-DD')
-    db.foodItems.update(item.id, item)
+    onUpdate(item)
   }
 
   function changeQuantity(quantity: number) {
@@ -87,14 +87,14 @@
     }
 
     item.quantity = quantity
-    db.foodItems.update(item.id, item)
+    onUpdate(item)
   }
 
   // Handlers
   function handleKeyDownOnName(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       item.name = draftName
-      db.foodItems.update(item.id, item)
+      onUpdate(item)
       isEditingName = false
       itemNameInput.blur()
     }
@@ -311,7 +311,7 @@
         ondblclick={stopPropagation()}
         onblur={() => {
           item.shelfLife = draftShelfLife
-          db.foodItems.update(item.id, item)
+          onUpdate(item)
         }}
       />
       days
