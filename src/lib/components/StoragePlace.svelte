@@ -40,22 +40,20 @@
     {#if items} <span class="text-stone-400">({items.list.length})</span> {/if}
   </h1>
   {#if items}
+    {@const store = items}
     <div role="group">
       {#each items.list as item, i (item.id)}
         <Item
           bind:item={items.list[i]}
           isSelected={items.selected === i}
           onSelected={(amount = 0) => {
-            if (items)
-              items.select(i + amount)
+            store.select(i + amount)
           }}
           onDelete={() => {
-            if (items)
-              items.delete(item.id)
+            store.delete(item.id)
           }}
           onUpdate={(updatedItem: StoredItem) => {
-            if (items)
-              items.update(item.id, updatedItem)
+            store.update(item.id, updatedItem)
           }}
         />
       {/each}
