@@ -9,6 +9,7 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(100, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
   },
   {
     id: uuid(),
@@ -16,6 +17,8 @@ export const possibleItems = [
     quantity: 12,
     dateAdded: dayjs().subtract(16, 'day').format('YYYY-MM-DD'),
     shelfLife: 35,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -23,6 +26,8 @@ export const possibleItems = [
     quantity: 2,
     dateAdded: dayjs().subtract(12, 'day').format('YYYY-MM-DD'),
     shelfLife: 5,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -30,6 +35,8 @@ export const possibleItems = [
     quantity: 6,
     dateAdded: dayjs().subtract(2, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -37,6 +44,8 @@ export const possibleItems = [
     quantity: 4,
     dateAdded: dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
     shelfLife: 14,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -44,6 +53,8 @@ export const possibleItems = [
     quantity: 5,
     dateAdded: dayjs().subtract(2, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -51,6 +62,8 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(4, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -58,6 +71,8 @@ export const possibleItems = [
     quantity: 8,
     dateAdded: dayjs().subtract(10, 'day').format('YYYY-MM-DD'),
     shelfLife: 21,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -65,6 +80,8 @@ export const possibleItems = [
     quantity: 2,
     dateAdded: dayjs().subtract(3, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -72,6 +89,8 @@ export const possibleItems = [
     quantity: 3,
     dateAdded: dayjs().subtract(5, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -79,6 +98,8 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
     shelfLife: 5,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -86,6 +107,8 @@ export const possibleItems = [
     quantity: 6,
     dateAdded: dayjs().subtract(14, 'day').format('YYYY-MM-DD'),
     shelfLife: 28,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -93,6 +116,8 @@ export const possibleItems = [
     quantity: 4,
     dateAdded: dayjs().subtract(20, 'day').format('YYYY-MM-DD'),
     shelfLife: 30,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -100,6 +125,8 @@ export const possibleItems = [
     quantity: 3,
     dateAdded: dayjs().subtract(4, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -107,6 +134,8 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(2, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -114,6 +143,8 @@ export const possibleItems = [
     quantity: 2,
     dateAdded: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
     shelfLife: 5,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -121,6 +152,8 @@ export const possibleItems = [
     quantity: 8,
     dateAdded: dayjs().subtract(10, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -128,6 +161,8 @@ export const possibleItems = [
     quantity: 2,
     dateAdded: dayjs().subtract(5, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -135,6 +170,8 @@ export const possibleItems = [
     quantity: 6,
     dateAdded: dayjs().subtract(8, 'day').format('YYYY-MM-DD'),
     shelfLife: 14,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -142,6 +179,8 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(2, 'day').format('YYYY-MM-DD'),
     shelfLife: 5,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -149,6 +188,8 @@ export const possibleItems = [
     quantity: 4,
     dateAdded: dayjs().subtract(10, 'day').format('YYYY-MM-DD'),
     shelfLife: 21,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -156,6 +197,8 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(3, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
   {
     id: uuid(),
@@ -163,5 +206,7 @@ export const possibleItems = [
     quantity: 1,
     dateAdded: dayjs().subtract(4, 'day').format('YYYY-MM-DD'),
     shelfLife: 7,
+    storage: 'fridge',
+
   },
 ] satisfies StoredItem[]

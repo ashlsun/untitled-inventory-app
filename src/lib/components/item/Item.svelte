@@ -4,6 +4,7 @@
   import updateLocale from 'dayjs/plugin/updateLocale'
   import { stopPropagation } from '$lib/utils'
   import { type StoredItem } from '$lib/types'
+  import { db } from '$lib/db'
 
   export type Props = {
     item: StoredItem
@@ -12,7 +13,8 @@
 
   export type Events = {
     onSelected: (index?: number) => void
-    onDelete: (itemId: string) => void
+    onDelete: () => void
+    onUpdate: (item: StoredItem) => void
   }
 </script>
 
@@ -75,21 +77,24 @@
   // Methods
   function changeDate() {
     item.dateAdded = dayjs(draftDateAdded).format('YYYY-MM-DD')
+    db.foodItems.update(item.id, item)
   }
 
   function changeQuantity(quantity: number) {
     if (quantity < 1) {
-      onDelete(item.id)
+      onDelete()
       return
     }
 
     item.quantity = quantity
+    db.foodItems.update(item.id, item)
   }
 
   // Handlers
   function handleKeyDownOnName(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       item.name = draftName
+      db.foodItems.update(item.id, item)
       isEditingName = false
       itemNameInput.blur()
     }
@@ -139,17 +144,17 @@
     draftName = (contentBefore + textToInsert + contentAfter).slice(0, 20)
   }
 
-  function handleKeyDownOnItem(event: KeyboardEvent, itemId: string) {
+  function handleKeyDownOnItem(event: KeyboardEvent) {
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
       return
 
     if (event.key === 'Delete' || event.key === 'Backspace') {
       if (isExpanded) {
         isExpanded = false
-        setTimeout(() => onDelete(itemId), 70)
+        setTimeout(() => onDelete(), 70)
       }
       else {
-        onDelete(itemId)
+        onDelete()
       }
     }
     else if (event.key === 'Enter') {
@@ -185,12 +190,13 @@
   function handleQuantityInputChange(event: Event) {
     const target = event.target as HTMLInputElement
     if (target.value === '0')
-      setTimeout(() => onDelete(item.id), 100)
+      setTimeout(() => onDelete(), 100)
 
     if (target.value === '') {
       target.value = '0'
-      setTimeout(() => onDelete(item.id), 300)
+      setTimeout(() => onDelete(), 300)
     }
+    changeQuantity(Number(target.value))
   }
 </script>
 
@@ -206,7 +212,7 @@
   aria-selected={isSelected}
   aria-expanded={isExpanded}
   onfocus={() => onSelected()}
-  onkeydown={event => handleKeyDownOnItem(event, item.id)}
+  onkeydown={event => handleKeyDownOnItem(event)}
   onclick={(event) => {
     // to remove the caret/selection inserted at itemNameInput
     if (event.target !== itemNameInput)
@@ -267,7 +273,7 @@
       <button
         class="transition items-end hover:text-red-600"
         onclick={() => {
-          onDelete(item.id)
+          onDelete()
         }}
       >delete
       </button>
@@ -305,6 +311,7 @@
         ondblclick={stopPropagation()}
         onblur={() => {
           item.shelfLife = draftShelfLife
+          db.foodItems.update(item.id, item)
         }}
       />
       days

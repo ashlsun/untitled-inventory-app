@@ -9,6 +9,7 @@ function getMockItem() {
     quantity: 2,
     dateAdded: '2000-01-02',
     shelfLife: 20,
+    storage: 'fridge',
   }
 }
 
@@ -30,6 +31,7 @@ describe('the Item component', () => {
         onDelete: mockDeleteItem,
         isSelected: false,
         onSelected: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
   })

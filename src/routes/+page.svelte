@@ -15,6 +15,7 @@
 <div class="m-2">
   <div class="flex w-full">
     <StoragePlace storagePlaceName="fridge" />
+
   </div>
 
   <div class="m-2 mt-12 max-w-sm">
@@ -37,7 +38,7 @@
       <li>Click on an item to select it.</li>
       <li class="ml-5">
         Double click or press
-        [<span class="icon-[tabler--arrow-back]" aria-hidden="true"></span> <b>Enter</b>] to expand.
+        [<span class="icon tabler--arrow-back" aria-hidden="true"></span> <b>Enter</b>] to expand.
       </li>
       <li class="ml-5">
         [<span class="icon tabler--backspace" aria-hidden="true"></span> <b>Backspace</b>] to delete.

@@ -3,49 +3,66 @@ import dayjs from 'dayjs'
 import { possibleItems } from '$lib/components/item/itemGenerator'
 import { randomIntFromInterval } from '$lib/utils'
 import type { StoredItem } from '$lib/types'
+import { db } from '$lib/db'
 
-export function createItemStore() {
-  const list = $state<StoredItem[]>(getRandomItems())
+export interface ItemStore {
+  readonly list: StoredItem[]
+  add: (name: string) => void
+  delete: (id: string) => void
+  readonly selected: number
+  select: (i: number) => void
+  update: (id: string, item: StoredItem) => void
+  addRandomItems: (numItems: number) => void
+}
+
+export async function createItemStore(storagePlaceName: string) {
+  const items = await db.foodItems.where('storage').equals(storagePlaceName).toArray()
+
+  let list = $state<StoredItem[]>(items)
   let selected = $state(-1)
 
   return {
     get list() {
       return list
     },
-    add(name: string) {
-      if (name === '')
+    add(input: string) {
+      if (input === '')
         return
 
-      const itemList = name.split(' ')
+      let name = input
+      let quantity = 1
+
+      const itemList = input.split(' ')
       if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
-        list.push({
-          id: uuid(),
-          dateAdded: dayjs().format('YYYY-MM-DD'),
-          name: name.slice(itemList[0].length).trim(),
-          quantity: Math.min(Number(itemList[0]), 99),
-          shelfLife: 5,
-        })
-      }
-      else {
-        list.push({
-          id: uuid(),
-          dateAdded: dayjs().format('YYYY-MM-DD'),
-          name,
-          quantity: 1,
-          shelfLife: 5,
-        })
+        name = input.slice(itemList[0].length).trim()
+        quantity = Math.min(Number(itemList[0]), 99)
       }
 
+      const newItem: StoredItem = {
+        id: uuid(), // Generate UUID here
+        name,
+        quantity,
+        dateAdded: dayjs().format('YYYY-MM-DD'),
+        shelfLife: 5,
+        storage: storagePlaceName,
+      }
+
+      db.foodItems.add(newItem)
+      list.push(newItem)
       selected = list.length
     },
     delete(id: string) {
-      const index = list.findIndex(item => item.id === id)
+      db.foodItems.delete(id)
 
+      const index = list.findIndex(item => item.id === id)
       if (index !== -1) {
         list.splice(index, 1)
         if (selected >= list.length)
           selected = Math.max(0, list.length - 1)
       }
+    },
+    update(id: string, item: StoredItem) {
+      db.foodItems.update(item.id, item)
     },
     get selected() {
       return selected
@@ -58,10 +75,13 @@ export function createItemStore() {
       else
         selected = i
     },
+    addRandomItems(numItems: number) {
+      list = [...list, ...getRandomItems(possibleItems, numItems, numItems)]
+    },
   }
 }
 
-function getRandomItems(
+export function getRandomItems(
   itemList: StoredItem[] = possibleItems,
   minItems = 3,
   maxItems = 10,
