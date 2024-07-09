@@ -64,7 +64,7 @@
       <div class="text-stone-400">Nothing in the {storagePlaceName}.</div>
     {/if}
   {:else}
-    <p>Loading...</p>
+    <p class="text-stone-400">Loading...</p>
   {/if}
   <input
     class="rounded-sm border border-black px-1 transition mt-5 outline-emerald-600 placeholder:text-stone-400 placeholder:italic placeholder:text-sm"
