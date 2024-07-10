@@ -285,6 +285,38 @@ export const possibleItems = [
     shelfLife: 365,
     storage: 'freezer',
   },
+  {
+    id: uuid(),
+    name: 'frozen waffles',
+    quantity: 8,
+    dateAdded: dayjs().subtract(21, 'day').format('YYYY-MM-DD'),
+    shelfLife: 180,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'frozen chicken nuggets',
+    quantity: 20,
+    dateAdded: dayjs().subtract(40, 'day').format('YYYY-MM-DD'),
+    shelfLife: 180,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'frozen vegetables mix',
+    quantity: 1,
+    dateAdded: dayjs().subtract(50, 'day').format('YYYY-MM-DD'),
+    shelfLife: 300,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'frozen shrimp',
+    quantity: 1,
+    dateAdded: dayjs().subtract(30, 'day').format('YYYY-MM-DD'),
+    shelfLife: 180,
+    storage: 'freezer',
+  },
 
 ] satisfies StoredItem[]
 
