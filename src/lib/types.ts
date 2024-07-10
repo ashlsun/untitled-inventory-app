@@ -4,4 +4,5 @@ export interface StoredItem {
   quantity: number
   dateAdded: string
   shelfLife: number
+  storage: string
 }

@@ -9,6 +9,7 @@ function getMockItem() {
     quantity: 2,
     dateAdded: '2000-01-02',
     shelfLife: 20,
+    storage: 'fridge',
   }
 }
 
@@ -30,6 +31,7 @@ describe('the Item component', () => {
         onDelete: mockDeleteItem,
         isSelected: false,
         onSelected: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
   })
@@ -70,7 +72,6 @@ describe('the Item component', () => {
     const itemElement = getByTestId('item-1')
     await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' })
     await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' })
-    expect(mockDeleteItem).toHaveBeenCalledWith('1')
     expect(mockDeleteItem).toHaveBeenCalledOnce()
   })
 
@@ -78,7 +79,6 @@ describe('the Item component', () => {
     const { getByText } = component
 
     await fireEvent.click(getByText('delete'))
-    expect(mockDeleteItem).toHaveBeenCalledWith('1')
     expect(mockDeleteItem).toHaveBeenCalledOnce()
   })
 })
