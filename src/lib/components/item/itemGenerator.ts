@@ -253,6 +253,39 @@ export const possibleItems = [
     shelfLife: 600,
     storage: 'freezer',
   },
+  {
+    id: uuid(),
+    name: 'frozen pizza',
+    quantity: 2,
+    dateAdded: dayjs().subtract(14, 'day').format('YYYY-MM-DD'),
+    shelfLife: 180,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'fish sticks',
+    quantity: 1,
+    dateAdded: dayjs().subtract(45, 'day').format('YYYY-MM-DD'),
+    shelfLife: 180,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'frozen berries',
+    quantity: 1,
+    dateAdded: dayjs().subtract(30, 'day').format('YYYY-MM-DD'),
+    shelfLife: 300,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'frozen spinach',
+    quantity: 2,
+    dateAdded: dayjs().subtract(90, 'day').format('YYYY-MM-DD'),
+    shelfLife: 365,
+    storage: 'freezer',
+  },
+
 ] satisfies StoredItem[]
 
 export function getRandomItems(
