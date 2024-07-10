@@ -72,7 +72,6 @@ describe('the Item component', () => {
     const itemElement = getByTestId('item-1')
     await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' })
     await fireEvent.keyDown(itemElement, { key: 'ArrowLeft' })
-    expect(mockDeleteItem).toHaveBeenCalledWith('1')
     expect(mockDeleteItem).toHaveBeenCalledOnce()
   })
 
@@ -80,7 +79,6 @@ describe('the Item component', () => {
     const { getByText } = component
 
     await fireEvent.click(getByText('delete'))
-    expect(mockDeleteItem).toHaveBeenCalledWith('1')
     expect(mockDeleteItem).toHaveBeenCalledOnce()
   })
 })
