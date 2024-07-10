@@ -1,23 +1,22 @@
 <script lang="ts">
   import Item from '$lib/components/item/Item.svelte'
   import { type StoredItem } from '$lib/db'
-  import { type ItemStore, createItemStore } from '$lib/stores/item.svelte'
+  import { type ItemStore } from '$lib/stores/item.svelte'
 
   // Props
-  const { storagePlaceName }: { storagePlaceName: string } = $props()
+  type Props = {
+    storagePlaceName: string
+    items: ItemStore | null
+  }
+
+  const {
+    storagePlaceName,
+    items,
+  }: Props = $props()
 
   // State
-  let items: ItemStore | null = $state(null)
   let newItemName = $state('')
-  let numRandomItems = $state(3)
 
-  $effect(() => {
-    createItemStore(storagePlaceName).then(
-      (itemStore) => {
-        items = itemStore
-      },
-    )
-  })
   // Methods
   function addItem() {
     if (items)
@@ -77,23 +76,5 @@
   >
     +
   </button>
-
-  <div class="mt-2 text-sm">
-    <b>DEMO FEATURE:</b>
-    <span class="italic">
-      Add
-      <input type="number" min="1" max="9" bind:value={numRandomItems} class="max-w-8 italic always-display-spinner" />
-      random item{numRandomItems !== 1 ? 's' : ''}
-      <button
-        class="transition hover:font-bold hover:text-emerald-700"
-        onclick={() => {
-          if (items)
-            items.addRandomItems(numRandomItems)
-        }}
-      >
-        +
-      </button>
-    </span>
-  </div>
 
 </div>

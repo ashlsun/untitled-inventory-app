@@ -1,6 +1,7 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
 import type { StoredItem } from '$lib/types'
+import { randomIntFromInterval } from '$lib/utils'
 
 export const possibleItems = [
   {
@@ -209,4 +210,68 @@ export const possibleItems = [
     storage: 'fridge',
 
   },
+  {
+    id: uuid(),
+    name: 'dumplings',
+    quantity: 1,
+    dateAdded: dayjs().subtract(40, 'day').format('YYYY-MM-DD'),
+    shelfLife: 300,
+    storage: 'freezer',
+
+  },
+  {
+    id: uuid(),
+    name: 'peas',
+    quantity: 1,
+    dateAdded: dayjs().subtract(9, 'day').format('YYYY-MM-DD'),
+    shelfLife: 600,
+    storage: 'freezer',
+
+  },
+  {
+    id: uuid(),
+    name: 'bread',
+    quantity: 1,
+    dateAdded: dayjs().subtract(9, 'day').format('YYYY-MM-DD'),
+    shelfLife: 100,
+    storage: 'freezer',
+
+  },
+  {
+    id: uuid(),
+    name: 'chocolate ice cream',
+    quantity: 1,
+    dateAdded: dayjs().subtract(4, 'day').format('YYYY-MM-DD'),
+    shelfLife: 600,
+    storage: 'freezer',
+  },
+  {
+    id: uuid(),
+    name: 'vanilla ice cream',
+    quantity: 1,
+    dateAdded: dayjs().subtract(3, 'day').format('YYYY-MM-DD'),
+    shelfLife: 600,
+    storage: 'freezer',
+  },
 ] satisfies StoredItem[]
+
+export function getRandomItems(
+  itemList: StoredItem[] = possibleItems,
+  minItems = 3,
+  maxItems = 10,
+) {
+  // Determine the number of items to select
+  const numItems = randomIntFromInterval(minItems, maxItems)
+
+  // Array to hold our selected items
+  const selectedItems = []
+
+  // Select random items
+  for (let i = 0; i < numItems && itemList.length > 0; i++) {
+    const randomIndex = Math.floor(Math.random() * itemList.length)
+    selectedItems.push(itemList[randomIndex])
+    itemList.splice(randomIndex, 1)
+  }
+
+  return selectedItems
+}

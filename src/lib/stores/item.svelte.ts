@@ -1,7 +1,6 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
 import { possibleItems } from '$lib/components/item/itemGenerator'
-import { randomIntFromInterval } from '$lib/utils'
 import type { StoredItem } from '$lib/types'
 import { db } from '$lib/db'
 
@@ -12,13 +11,13 @@ export interface ItemStore {
   readonly selected: number
   select: (i: number) => void
   update: (id: string, item: StoredItem) => void
-  addRandomItems: (numItems: number) => void
+  importItem: (item: StoredItem) => void
 }
 
 export async function createItemStore(storagePlaceName: string) {
   const items = await db.foodItems.where('storage').equals(storagePlaceName).toArray()
 
-  let list = $state<StoredItem[]>(items)
+  const list = $state<StoredItem[]>(items)
   let selected = $state(-1)
 
   return {
@@ -51,6 +50,15 @@ export async function createItemStore(storagePlaceName: string) {
       list.push(newItem)
       selected = list.length
     },
+    importItem(item: StoredItem) {
+      if (item.storage !== storagePlaceName)
+        throw new Error(`Imported item's storage ${item.storage} did not match destination ${storagePlaceName}`)
+
+      console.log('hey', item)
+      db.foodItems.add(item)
+      list.push(item)
+      selected = list.length
+    },
     delete(id: string) {
       db.foodItems.delete(id)
 
@@ -75,29 +83,5 @@ export async function createItemStore(storagePlaceName: string) {
       else
         selected = i
     },
-    addRandomItems(numItems: number) {
-      list = [...list, ...getRandomItems(possibleItems, numItems, numItems)]
-    },
   }
-}
-
-export function getRandomItems(
-  itemList: StoredItem[] = possibleItems,
-  minItems = 3,
-  maxItems = 10,
-) {
-  // Determine the number of items to select
-  const numItems = randomIntFromInterval(minItems, maxItems)
-
-  // Array to hold our selected items
-  const selectedItems = []
-
-  // Select random items
-  for (let i = 0; i < numItems && itemList.length > 0; i++) {
-    const randomIndex = Math.floor(Math.random() * itemList.length)
-    selectedItems.push(itemList[randomIndex])
-    itemList.splice(randomIndex, 1)
-  }
-
-  return selectedItems
 }
