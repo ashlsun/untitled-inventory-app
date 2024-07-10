@@ -54,7 +54,6 @@ export async function createItemStore(storagePlaceName: string) {
       if (item.storage !== storagePlaceName)
         throw new Error(`Imported item's storage ${item.storage} did not match destination ${storagePlaceName}`)
 
-      console.log('hey', item)
       db.foodItems.add(item)
       list.push(item)
       selected = list.length
