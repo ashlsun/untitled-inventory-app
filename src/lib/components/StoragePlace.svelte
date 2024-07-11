@@ -2,6 +2,7 @@
   import Item from '$lib/components/item/Item.svelte'
   import { type StoredItem } from '$lib/db'
   import { type ItemStore } from '$lib/stores/item.svelte'
+  import type { SortBy } from '$lib/types'
 
   // Props
   type Props = {
@@ -16,7 +17,7 @@
 
   // State
   let newItemName = $state('')
-  let sortOption = $state('oldest')
+  let sortOption = $state<SortBy>('oldest')
 
   // Methods
   function addItem() {
@@ -46,6 +47,7 @@
       <select
         class="text-sm py-1 my-1 italic text-stone-500"
         bind:value={sortOption}
+
         onchange={() => {
           console.log(sortOption)
           if (items)
@@ -56,7 +58,7 @@
         <option value="newest">newest</option>
         <option value="a to z">a to z</option>
         <option value="z to a">z to a</option>
-
+        <option value="quantity">quantity</option>
       </select>
     </div>
 

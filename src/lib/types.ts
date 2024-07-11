@@ -6,3 +6,5 @@ export interface StoredItem {
   shelfLife: number
   storage: string
 }
+
+export type SortBy = 'oldest' | 'newest' | 'a to z' | 'z to a' | 'quantity'

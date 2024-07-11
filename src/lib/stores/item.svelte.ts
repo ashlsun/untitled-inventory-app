@@ -1,6 +1,6 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import type { StoredItem } from '$lib/types'
+import type { SortBy, StoredItem } from '$lib/types'
 import { db } from '$lib/db'
 
 export interface ItemStore {
@@ -11,14 +11,14 @@ export interface ItemStore {
   select: (i: number) => void
   update: (id: string, item: StoredItem) => void
   importItem: (item: StoredItem) => void
-  sortBy: (attribute: string) => void
+  sortBy: (attribute: SortBy) => void
 }
 
 export async function createItemStore(storagePlaceName: string) {
   const items = await db.foodItems.where('storage').equals(storagePlaceName).toArray()
 
   let list = $state<StoredItem[]>(items)
-  let sortBy = $state('oldest')
+  let sortBy = $state<SortBy>('oldest')
   let selected = $state(-1)
 
   function sortItems() {
@@ -111,7 +111,7 @@ export async function createItemStore(storagePlaceName: string) {
       else
         selected = i
     },
-    sortBy(attribute: string = sortBy) {
+    sortBy(attribute: SortBy = sortBy) {
       sortBy = attribute
       sortItems()
     },
