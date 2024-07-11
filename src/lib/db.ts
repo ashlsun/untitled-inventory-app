@@ -1,13 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-
-export interface StoredItem {
-  id: string
-  name: string
-  quantity: number
-  dateAdded: string
-  storage: string
-  shelfLife: number
-}
+import type { StoredItem } from './types'
 
 export interface CommonItem {
   id: string

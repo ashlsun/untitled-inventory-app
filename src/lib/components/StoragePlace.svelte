@@ -1,17 +1,16 @@
 <script lang="ts">
   import Item from '$lib/components/item/Item.svelte'
-  import { type StoredItem } from '$lib/db'
-  import { type ItemStore } from '$lib/stores/item.svelte'
-  import type { SortBy } from '$lib/types'
+  import type { SortBy, StoredItem } from '$lib/types'
+  import { itemStore } from '$lib/stores/item.svelte'
 
   // Props
   type Props = {
-    storagePlaceName: string
-    items: ItemStore | null
+    storage: string
+    items: StoredItem[]
   }
 
   const {
-    storagePlaceName,
+    storage,
     items,
   }: Props = $props()
 
@@ -21,8 +20,7 @@
 
   // Methods
   function addItem() {
-    if (items)
-      items.add(newItemName)
+    itemStore.importItem(storage, newItemName)
     newItemName = ''
   }
 
@@ -38,8 +36,9 @@
   role="tree"
 >
   <div class="flex w-full justify-between items-center ">
-    <h1><b>{storagePlaceName}</b>
-      {#if items} <span class="text-stone-400">({items.list.length})</span> {/if}
+    <h1>
+      <b>{storage}</b>
+      <span class="text-stone-400">({itemStore.itemCount(storage)})</span>
     </h1>
 
     <div class="flex items-center">
@@ -51,7 +50,7 @@
         onchange={() => {
           console.log(sortOption)
           if (items)
-            items.sortBy(sortOption)
+            itemStore.sortItems(storage, sortOption)
         }}
       >
         <option value="oldest">oldest</option>
@@ -62,30 +61,26 @@
       </select>
     </div>
 
-  </div> {#if items}
-    {@const store = items}
-    <div role="group">
-      {#each items.list as item, i (item.id)}
-        <Item
-          bind:item={items.list[i]}
-          isSelected={items.selected === i}
-          onSelected={(amount = 0) => {
-            store.select(i + amount)
-          }}
-          onDelete={() => {
-            store.delete(item.id)
-          }}
-          onUpdate={(updatedItem: StoredItem) => {
-            store.update(item.id, updatedItem)
-          }}
-        />
-      {/each}
-    </div>
-    {#if items.list.length === 0}
-      <div class="text-stone-400">Nothing in the {storagePlaceName}.</div>
-    {/if}
-  {:else}
-    <p class="text-stone-400">Loading...</p>
+  </div>
+  <div role="group">
+    {#each itemStore.items[storage] as item, i (item.id)}
+      <Item
+        bind:item={itemStore.items[storage][i]}
+        isSelected={itemStore.selected.storage === storage && itemStore.selected.index === i}
+        onSelected={(amount = 0) => {
+          itemStore.selectItem(storage, i + amount)
+        }}
+        onDelete={() => {
+          itemStore.deleteItem(storage, item.id)
+        }}
+        onUpdate={(updatedItem: StoredItem) => {
+          itemStore.updateItem(storage, updatedItem)
+        }}
+      />
+    {/each}
+  </div>
+  {#if itemStore.itemCount(storage) === 0}
+    <div class="text-stone-400">Nothing in the {storage}.</div>
   {/if}
   <input
     class="rounded-sm border border-black px-1 transition mt-5 outline-emerald-600 placeholder:text-stone-400 placeholder:italic placeholder:text-sm"

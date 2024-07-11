@@ -1,30 +1,15 @@
 <script lang="ts">
   import { getRandomItems, possibleItems } from '$lib/components/item/itemGenerator'
   import StoragePlace from '$lib/components/StoragePlace.svelte'
-  import { type ItemStore, createItemStore } from '$lib/stores/item.svelte'
+  import { itemStore } from '$lib/stores/item.svelte'
 
   let showTips = $state(false)
   let tips: HTMLDivElement | null = $state(null)
-
-  let fridgeItems: ItemStore | null = $state(null)
-  let freezerItems: ItemStore | null = $state(null)
 
   let numRandomItemsToAdd = $state(3)
   let selectedStoragePlace = $state('fridge')
 
   $effect(() => {
-    createItemStore('fridge').then(
-      (itemStore) => {
-        fridgeItems = itemStore
-      },
-    )
-
-    createItemStore('freezer').then(
-      (itemStore) => {
-        freezerItems = itemStore
-      },
-    )
-
     if (tips)
       tips.style.height = showTips ? `${tips.scrollHeight + 1}px` : '0px'
   })
@@ -34,10 +19,10 @@
 
 <div class="m-2">
   <div class="flex w-full">
-    <StoragePlace storagePlaceName="fridge"
-                  items={fridgeItems} />
-    <StoragePlace storagePlaceName="freezer"
-                  items={freezerItems} />
+    {#each itemStore.storages as storage}
+      <StoragePlace storage={storage}
+                    items={itemStore.items[storage]} />
+    {/each}
 
   </div>
   <div class="m-2 text-sm">
@@ -54,12 +39,14 @@
       <button
         class="transition hover:font-bold hover:text-emerald-700"
         onclick={() => {
-          // TODO: broken when adding more items after everything has already been added once
-          const randomItemList = getRandomItems(possibleItems.filter(item => (item.storage === selectedStoragePlace)), numRandomItemsToAdd, numRandomItemsToAdd)
-          if (selectedStoragePlace === 'fridge')
-            randomItemList.map(item => fridgeItems?.importItem(item))
-          else if (selectedStoragePlace === 'freezer')
-            randomItemList.map(item => freezerItems?.importItem(item))
+          const randomItemList = getRandomItems(
+            possibleItems.filter(item => (item.storage === selectedStoragePlace)),
+            numRandomItemsToAdd,
+            numRandomItemsToAdd,
+          )
+
+          for (const item of randomItemList)
+            itemStore.addItem(selectedStoragePlace, item)
         }}
       >
         +

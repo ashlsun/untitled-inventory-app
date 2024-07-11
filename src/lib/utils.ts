@@ -1,8 +1,11 @@
+// #region Misc
 export function randomIntFromInterval(min: number, max: number) {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
+// #endregion
 
+// #region Svelte modifiers
 export function once<T extends Event>(fn?: (event: T) => void) {
   return function (event: T) {
     if (fn)
@@ -26,3 +29,4 @@ export function stopPropagation<T extends Event>(fn?: (event: T) => void) {
       fn(event)
   }
 }
+// #endregion
