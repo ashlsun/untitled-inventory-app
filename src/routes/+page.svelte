@@ -19,9 +19,8 @@
 
 <div class="m-2">
   <div class="flex w-full">
-    {#each itemStore.storages as storage}
-      <StoragePlace storage={storage}
-                    items={itemStore.items[storage]} />
+    {#each itemStore.storages as storageName}
+      <StoragePlace {storageName} />
     {/each}
 
   </div>

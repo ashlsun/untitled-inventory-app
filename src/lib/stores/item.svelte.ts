@@ -50,15 +50,9 @@ function createItemStore(): ItemStore {
   loadInitialData()
 
   const store: ItemStore = {
-    get storages() {
-      return storages
-    },
-    get items() {
-      return items
-    },
-    get selected() {
-      return selected
-    },
+    get storages() { return storages },
+    get items() { return items },
+    get selected() { return selected },
     storageCount: storages.length,
     async addStorage(storage: string) {
       if (!storages.includes(storage)) {
