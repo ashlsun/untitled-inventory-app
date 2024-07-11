@@ -17,10 +17,11 @@
   // State
   let newItemName = $state('')
   let sortOption = $state<SortBy>('oldest')
+  const storageOps = itemStore.storage(storage)
 
   // Methods
   function addItem() {
-    itemStore.importItem(storage, newItemName)
+    storageOps.importItem(newItemName)
     newItemName = ''
   }
 
@@ -38,7 +39,7 @@
   <div class="flex w-full justify-between items-center ">
     <h1>
       <b>{storage}</b>
-      <span class="text-stone-400">({itemStore.itemCount(storage)})</span>
+      <span class="text-stone-400">({storageOps.itemCount})</span>
     </h1>
 
     <div class="flex items-center">
@@ -50,7 +51,7 @@
         onchange={() => {
           console.log(sortOption)
           if (items)
-            itemStore.sortItems(storage, sortOption)
+            storageOps.sortItems(sortOption)
         }}
       >
         <option value="oldest">oldest</option>
@@ -71,15 +72,15 @@
           itemStore.selectItem(storage, i + amount)
         }}
         onDelete={() => {
-          itemStore.deleteItem(storage, item.id)
+          storageOps.deleteItem(item.id)
         }}
         onUpdate={(updatedItem: StoredItem) => {
-          itemStore.updateItem(storage, updatedItem)
+          storageOps.updateItem(updatedItem)
         }}
       />
     {/each}
   </div>
-  {#if itemStore.itemCount(storage) === 0}
+  {#if storageOps.itemCount === 0}
     <div class="text-stone-400">Nothing in the {storage}.</div>
   {/if}
   <input

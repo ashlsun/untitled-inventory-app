@@ -46,7 +46,7 @@
           )
 
           for (const item of randomItemList)
-            itemStore.addItem(selectedStoragePlace, item)
+            itemStore.storage(selectedStoragePlace).addItem(item)
         }}
       >
         +
