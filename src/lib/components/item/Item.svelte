@@ -36,10 +36,8 @@
   // DOM nodes
   let itemDiv: HTMLDivElement
   let itemNameInput: HTMLSpanElement
-  let itemQuantityInput: HTMLInputElement
   let childrenDiv: HTMLDivElement
   let dateAddedInput: HTMLInputElement
-  let shelfLifeInput: HTMLInputElement
 
   // Reactive declarations
   const daysTilSpoil = $derived(
@@ -229,7 +227,6 @@
   <div class="flex justify-between">
     <span>
       <input
-        bind:this={itemQuantityInput}
         bind:value={item.quantity}
         type="number"
         min="0"
@@ -303,7 +300,6 @@
     <div role="treeitem" aria-selected="false">
       Edit shelf life:
       <input
-        bind:this={shelfLifeInput}
         type="number"
         class="border-1 max-w-12 border border-dashed border-stone-400 text-center always-display-spinner sm mb-1 ml-3 w-fit rounded"
         bind:value={draftShelfLife}

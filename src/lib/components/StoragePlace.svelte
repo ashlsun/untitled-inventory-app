@@ -16,6 +16,7 @@
 
   // State
   let newItemName = $state('')
+  let sortOption = $state('oldest')
 
   // Methods
   function addItem() {
@@ -35,10 +36,31 @@
   class="rounded-sm border m-3 inline-block h-fit min-w-80 max-w-[420px] border-black p-1"
   role="tree"
 >
-  <h1 class="font-bold">{storagePlaceName}
-    {#if items} <span class="text-stone-400">({items.list.length})</span> {/if}
-  </h1>
-  {#if items}
+  <div class="flex w-full justify-between items-center ">
+    <h1><b>{storagePlaceName}</b>
+      {#if items} <span class="text-stone-400">({items.list.length})</span> {/if}
+    </h1>
+
+    <div class="flex items-center">
+      <span class="text-sm italic text-stone-500 mr-1">sort:</span>
+      <select
+        class="text-sm py-1 my-1 italic text-stone-500"
+        bind:value={sortOption}
+        onchange={() => {
+          console.log(sortOption)
+          if (items)
+            items.sortBy(sortOption)
+        }}
+      >
+        <option value="oldest">oldest</option>
+        <option value="newest">newest</option>
+        <option value="a to z">a to z</option>
+        <option value="z to a">z to a</option>
+
+      </select>
+    </div>
+
+  </div> {#if items}
     {@const store = items}
     <div role="group">
       {#each items.list as item, i (item.id)}

@@ -1,6 +1,5 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import { possibleItems } from '$lib/components/item/itemGenerator'
 import type { StoredItem } from '$lib/types'
 import { db } from '$lib/db'
 
@@ -12,13 +11,43 @@ export interface ItemStore {
   select: (i: number) => void
   update: (id: string, item: StoredItem) => void
   importItem: (item: StoredItem) => void
+  sortBy: (attribute: string) => void
 }
 
 export async function createItemStore(storagePlaceName: string) {
   const items = await db.foodItems.where('storage').equals(storagePlaceName).toArray()
 
-  const list = $state<StoredItem[]>(items)
+  let list = $state<StoredItem[]>(items)
+  let sortBy = $state('oldest')
   let selected = $state(-1)
+
+  function sortItems() {
+    const sortedList = [...list]
+    switch (sortBy) {
+      case 'a to z':
+        console.log(list)
+        sortedList.sort((a, b) => a.name.localeCompare(b.name))
+        console.log(sortedList)
+        break
+      case 'z to a':
+        sortedList.sort((a, b) => b.name.localeCompare(a.name))
+        break
+      case 'quantity':
+        sortedList.sort((a, b) => b.quantity - a.quantity)
+        break
+      case 'oldest':
+        sortedList.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime())
+        break
+      case 'newest':
+        sortedList.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime())
+        break
+    }
+    console.log('before assigining')
+    list = sortedList
+    console.log('after assigining')
+  }
+
+  sortItems()
 
   return {
     get list() {
@@ -81,6 +110,10 @@ export async function createItemStore(storagePlaceName: string) {
         selected = list.length - 1
       else
         selected = i
+    },
+    sortBy(attribute: string = sortBy) {
+      sortBy = attribute
+      sortItems()
     },
   }
 }
