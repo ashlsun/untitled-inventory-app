@@ -1,9 +1,9 @@
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'
 
-const todaysDateISOFormat = dayjs().format('YYYY-MM-DD');
+const todaysDateISOFormat = dayjs().format('YYYY-MM-DD')
 
 export function getPromptText(existingInventory: string) {
-	return `You are an advanced AI assistant specializing in optical character recognition, data structuring, and inventory management. Your task is to analyze an image of a grocery receipt, convert the relevant information into a list of JSON objects, and merge this with an existing fridge inventory. Each object should represent a perishable food item and follow this structure:
+  return `You are an advanced AI assistant specializing in optical character recognition, data structuring, and inventory management. Your task is to analyze an image of a grocery receipt, convert the relevant information into a list of JSON objects, and merge this with an existing fridge inventory. Each object should represent a perishable food item and follow this structure:
 
     {
       id: string,
@@ -31,7 +31,9 @@ export function getPromptText(existingInventory: string) {
     10. Present the results as a JSON object containing one property "items", which is a list of properly formatted JSON objects representing the updated inventory.
     
     Additional notes:
+    - Try to preserve the order of items as they appear on the receipt.
     - If the image quality is poor or text is unclear, make reasonable assumptions.
+    - If the item name is misspelled or abbreviated, make reasonable guesses. For example: "SUMMR SQUASH" is likely to be "summer squash".
     - If the image is not a receipt or no relevant items are found, return the original inventory unchanged.
     
     Example input:
@@ -54,7 +56,7 @@ export function getPromptText(existingInventory: string) {
     ]
 
     
-    Example output (assuming receipt adds 1 milk, 1 zucchini and 1 carrot):
+    Example output (assuming receipt adds 2 milk, 1 zucchini and 1 carrot):
     {
       "items": [
         {
@@ -67,14 +69,14 @@ export function getPromptText(existingInventory: string) {
         {
           "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
           "name": "zucchini",
-          "quantity": 3,
+          "quantity": 1,
           "dateAdded": "2024-06-27",
           "shelfLife": 7
         },
         {
           "id": "to be generated",
           "name": "carrot",
-          "quantity": 3,
+          "quantity": 1,
           "dateAdded": "${todaysDateISOFormat}",
           "shelfLife": 7
         }
@@ -85,5 +87,5 @@ export function getPromptText(existingInventory: string) {
     
     ${existingInventory}
     
-    Then provide the updated inventory as a JSON object.`;
+    Then provide the updated inventory as a JSON object.`
 }

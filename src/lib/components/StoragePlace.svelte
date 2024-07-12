@@ -71,7 +71,7 @@
     placeholder="Add a new item..."
   />
   <button
-    class="transition hover:font-bold hover:text-emerald-700"
+    class="transition hover:font-bold hover:text-emerald-600"
     onclick={addItem}
   >
     +
