@@ -1,5 +1,6 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
+import { untrack } from 'svelte'
 import type { SortBy, StoredItem } from '$lib/types'
 import { db } from '$lib/db'
 
@@ -148,6 +149,11 @@ function createItemStore(): ItemStore {
         },
         sortItems(sortBy: SortBy) {
           if (items[storageName]) {
+            let selectedId: string | undefined
+
+            if (selected.index !== -1)
+              selectedId = items[storageName][selected.index]?.id
+
             items[storageName].sort((a, b) => {
               switch (sortBy) {
                 case 'a to z':
@@ -164,6 +170,11 @@ function createItemStore(): ItemStore {
                   return 0
               }
             })
+
+            if (selected.index !== -1) {
+              const selectedIndex = items[storageName].findIndex(item => item.id === selectedId)
+              selected = { storage: storageName, index: selectedIndex }
+            }
           }
         },
       }

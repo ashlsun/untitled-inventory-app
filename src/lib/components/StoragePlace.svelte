@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import Item from '$lib/components/item/Item.svelte'
   import type { SortBy, StoredItem } from '$lib/types'
   import { sortBy } from '$lib/types'
@@ -24,7 +25,7 @@
     if (localDb.storage.getSort(storageName) !== sortOption)
       localDb.storage.setSort(storageName, sortOption)
 
-    storageOps.sortItems(sortOption)
+    untrack(() => storageOps.sortItems(sortOption))
   })
 
   // Methods

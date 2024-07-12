@@ -61,7 +61,6 @@ class LocalStorageDatabase {
       return storageSort ? storageSort.sortBy : 'none'
     },
     setSort: (storage: string, sortBy: SortBy) => {
-      console.log('setSort', storage, sortBy)
       const sortOptions = this.getTable<SortStorage>('sortOptions')
       const storageSort = sortOptions.find(sort => sort.storage === storage)
       if (storageSort)
