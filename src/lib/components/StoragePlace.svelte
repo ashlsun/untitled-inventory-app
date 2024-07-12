@@ -63,7 +63,7 @@
   <div class="flex w-full justify-between items-center ">
     <h1>
       <b>{storageName}</b>
-      <span class="text-stone-400">({storageOps.itemCount})</span>
+      <span class="text-stone-400">({itemStore.itemCounts[storageName]})</span>
     </h1>
 
     <div class="flex items-center">
@@ -97,7 +97,7 @@
       />
     {/each}
   </div>
-  {#if storageOps.itemCount === 0}
+  {#if itemStore.itemCounts[storageName] === 0}
     <div class="text-stone-400">Nothing in the {storageName}.</div>
   {/if}
   <input

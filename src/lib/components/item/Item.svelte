@@ -273,7 +273,7 @@
           onDelete()
         }}
       >
-        <span class="icon tabler--x font-bold" aria-hidden="true"></span>
+        <span title="delete" class="icon tabler--x font-bold" aria-hidden="true"></span>
       </button>
     </span>
   </div>

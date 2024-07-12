@@ -7,10 +7,11 @@ type AddItem = Pick<StoredItem, 'name'> & Partial<Omit<StoredItem, 'name'>>
 type UpdateItem = Pick<StoredItem, 'id'> & Partial<Omit<StoredItem, 'id'>>
 
 export interface ItemStore {
-  storages: string[]
   items: Record<string, StoredItem[]>
-  selected: { storage: string, index: number }
+  storages: string[]
+  itemCounts: Record<string, number>
   storageCount: number
+  selected: { storage: string, index: number }
   addStorage: (storage: string) => Promise<void>
   removeStorage: (storage: string) => Promise<void>
   moveItem: (fromStorage: string, toStorage: string, id: string) => Promise<void>
@@ -19,7 +20,6 @@ export interface ItemStore {
 }
 
 interface StorageOperations {
-  itemCount: number
   getItemById: (id: string) => StoredItem | undefined
   getItemByName: (name: string) => StoredItem | undefined
   addItem: (item: AddItem) => Promise<void>
@@ -33,6 +33,14 @@ export const itemStore = createItemStore()
 function createItemStore(): ItemStore {
   const items = $state<Record<string, StoredItem[]>>({})
   const storages = $derived(Object.keys(items))
+  const itemCounts = $derived.by(() => {
+    const counts: Record<string, number> = {}
+    for (const storage of storages)
+      counts[storage] = items[storage]?.length ?? 0
+
+    return counts
+  })
+  const storageCount = $derived(storages.length)
   let selected = $state<{ storage: string, index: number }>({ storage: '', index: -1 })
 
   async function loadInitialData() {
@@ -49,10 +57,11 @@ function createItemStore(): ItemStore {
   loadInitialData()
 
   const store: ItemStore = {
-    get storages() { return storages },
     get items() { return items },
+    get storages() { return storages },
+    get itemCounts() { return itemCounts },
+    get storageCount() { return storageCount },
     get selected() { return selected },
-    storageCount: storages.length,
     async addStorage(storage: string) {
       if (!storages.includes(storage)) {
         storages.push(storage)
@@ -94,7 +103,6 @@ function createItemStore(): ItemStore {
     },
     storage(storageName: string): StorageOperations {
       return {
-        itemCount: items[storageName]?.length ?? 0,
         getItemById: (id: string) => items[storageName]?.find(item => item.id === id),
         getItemByName: (name: string) => items[storageName]?.find(item => item.name === name),
         async addItem(item: AddItem) {
