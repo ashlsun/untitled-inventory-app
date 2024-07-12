@@ -7,4 +7,13 @@ export interface StoredItem {
   storage: string
 }
 
-export type SortBy = 'oldest' | 'newest' | 'a to z' | 'z to a' | 'quantity'
+export const sortBy = [
+  'oldest',
+  'newest',
+  'a to z',
+  'z to a',
+  'quantity',
+  'none',
+] as const
+
+export type SortBy = typeof sortBy[number]

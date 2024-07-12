@@ -14,13 +14,15 @@
   let tips: HTMLDivElement | null = $state(null)
 
   let numRandomItemsToAdd = $state(3)
-  let selectedStoragePlace = $state('fridge')
+  let selectedStoragePlace = $state(itemStore.storages[0])
   let openAiKey = $state('')
   let isOpenAiKeyVisible = $state(false)
 
   $effect(() => {
     if (tips)
       tips.style.height = showTips ? `${tips.scrollHeight + 1}px` : '0px'
+
+    selectedStoragePlace = itemStore.storages[0]
   })
 
   let selectedFile: File | null = null
@@ -172,8 +174,9 @@
         id="storageplaceselect"
         bind:value={selectedStoragePlace}
       >
-        <option value="fridge">fridge</option>
-        <option value="freezer">freezer</option>
+        {#each itemStore.storages as storageName}
+          <option value={storageName}>{storageName}</option>
+        {/each}
       </select>
       <button
         class="transition hover:font-bold hover:text-emerald-600"

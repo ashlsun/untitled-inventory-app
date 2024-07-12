@@ -1,6 +1,7 @@
 <script lang="ts">
   import Item from '$lib/components/item/Item.svelte'
   import type { SortBy, StoredItem } from '$lib/types'
+  import { sortBy } from '$lib/types'
   import { itemStore } from '$lib/stores/item.svelte'
 
   // Props
@@ -14,7 +15,7 @@
 
   // State
   let newItemInput = $state('')
-  let sortOption = $state<SortBy>('oldest')
+  let sortOption = $state<SortBy>('none')
   const storageOps = itemStore.storage(storageName)
 
   // Methods
@@ -31,7 +32,7 @@
       quantity = Number(itemList[0])
     }
     storageOps.addItem({ name, quantity })
-
+    sortOption = 'none'
     newItemInput = ''
   }
 
@@ -63,11 +64,9 @@
         bind:value={sortOption}
         onchange={handleSort}
       >
-        <option value="oldest">oldest</option>
-        <option value="newest">newest</option>
-        <option value="a to z">a to z</option>
-        <option value="z to a">z to a</option>
-        <option value="quantity">quantity</option>
+        {#each sortBy as sort}
+          <option value={sort} hidden={sort === 'none'}>{sort}</option>
+        {/each}
       </select>
     </div>
 
