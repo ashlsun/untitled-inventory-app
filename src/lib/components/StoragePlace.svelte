@@ -3,6 +3,7 @@
   import type { SortBy, StoredItem } from '$lib/types'
   import { sortBy } from '$lib/types'
   import { itemStore } from '$lib/stores/item.svelte'
+  import { localDb } from '$lib/db'
 
   // Props
   type Props = {
@@ -15,8 +16,16 @@
 
   // State
   let newItemInput = $state('')
-  let sortOption = $state<SortBy>('none')
+  let sortOption = $state<SortBy>(localDb.storage.getSort(storageName))
   const storageOps = itemStore.storage(storageName)
+
+  // Reactive declarations
+  $effect(() => {
+    if (localDb.storage.getSort(storageName) !== sortOption)
+      localDb.storage.setSort(storageName, sortOption)
+
+    storageOps.sortItems(sortOption)
+  })
 
   // Methods
   function inputItem() {
