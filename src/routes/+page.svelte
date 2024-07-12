@@ -1,30 +1,35 @@
 <script lang="ts">
   import { v7 as uuid } from 'uuid'
   import type { StoredItem } from '$lib/types'
-  import {
-    getRandomItems,
-    possibleItems,
-  } from '$lib/components/item/itemGenerator'
+  import { getRandomItems, possibleItems } from '$lib/components/item/itemGenerator'
   import StoragePlace from '$lib/components/StoragePlace.svelte'
   import { encodeImage } from '$lib/utils'
   import { getPromptText } from '$lib/prompt'
   import { itemStore } from '$lib/stores/item.svelte'
 
+  // State
   let showTips = $state(false)
   let tips: HTMLDivElement | null = $state(null)
-
   let numRandomItemsToAdd = $state(3)
   let selectedStoragePlace = $state(itemStore.storages[0])
   let openAiKey = $state('')
   let isOpenAiKeyVisible = $state(false)
 
+  // Reactive declarations
+  const randomItemList = $derived(getRandomItems(
+    possibleItems.filter(
+      item => item.storage === selectedStoragePlace,
+    ),
+    numRandomItemsToAdd,
+    numRandomItemsToAdd,
+  ))
+
   $effect(() => {
     if (tips)
       tips.style.height = showTips ? `${tips.scrollHeight + 1}px` : '0px'
-
-    selectedStoragePlace = itemStore.storages[0]
   })
 
+  // GPT API
   let selectedFile: File | null = null
   let isProcessingReceipt = $state(false)
   let errorProcessingReceipt = $state(false)
@@ -77,6 +82,7 @@
     return response.json()
   }
 
+  // Handlers
   function handleFileSelect(event: Event) {
     const target = event.target as HTMLInputElement
     const files = target.files
@@ -149,6 +155,11 @@
       errorProcessingReceipt = true
     }
   }
+
+  // Methods
+  function addStorage() {
+    itemStore.addStorage(`storage ${itemStore.storages.length + 1}`)
+  }
 </script>
 
 <div class="m-2">
@@ -156,6 +167,12 @@
     {#each itemStore.storages as storageName}
       <StoragePlace {storageName} />
     {/each}
+    <button
+      class="transition text-lg hover:text-sky-600 h-fit w-5 mt-3"
+      onclick={addStorage}
+    >
+      +
+    </button>
   </div>
   <div class="m-2 text-sm">
     <b>DEMO FEATURE:</b>
@@ -181,14 +198,6 @@
       <button
         class="transition hover:font-bold hover:text-emerald-600"
         onclick={() => {
-          const randomItemList = getRandomItems(
-            possibleItems.filter(
-              item => item.storage === selectedStoragePlace,
-            ),
-            numRandomItemsToAdd,
-            numRandomItemsToAdd,
-          )
-
           for (const item of randomItemList)
             itemStore.storage(selectedStoragePlace).addItem(item)
         }}

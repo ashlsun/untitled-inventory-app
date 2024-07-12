@@ -18,7 +18,8 @@
   // State
   let newItemInput = $state('')
   let sortOption = $state<SortBy>(localDb.storage.getSort(storageName))
-  const storageOps = itemStore.storage(storageName)
+  let previousStorageName = storageName
+  const storageOps = $derived(itemStore.storage(storageName))
 
   // Reactive declarations
   $effect(() => {
@@ -55,6 +56,18 @@
   function handleSort() {
     storageOps.sortItems(sortOption)
   }
+
+  function handleEnter(event: KeyboardEvent) {
+    if (event.key !== 'Enter')
+      return
+
+    const target = event.target as HTMLElement
+    event.preventDefault()
+    itemStore.updateStorage(previousStorageName, target.textContent || '')
+    localDb.storage.rename(previousStorageName, target.textContent || '')
+    previousStorageName = target.textContent || ''
+    target.blur()
+  }
 </script>
 
 <div
@@ -63,7 +76,15 @@
 >
   <div class="flex w-full justify-between items-center ">
     <h1>
-      <b>{storageName}</b>
+      <span
+        contenteditable
+        role="textbox"
+        aria-multiline="false"
+        tabindex="0"
+        onkeydown={handleEnter}
+      >
+        <b>{storageName}</b>
+      </span>
       <span class="text-stone-400">({itemStore.itemCounts[storageName]})</span>
     </h1>
 

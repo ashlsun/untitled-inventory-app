@@ -1,6 +1,5 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import { untrack } from 'svelte'
 import type { SortBy, StoredItem } from '$lib/types'
 import { db } from '$lib/db'
 
@@ -15,6 +14,7 @@ export interface ItemStore {
   selected: { storage: string, index: number }
   addStorage: (storage: string) => Promise<void>
   removeStorage: (storage: string) => Promise<void>
+  updateStorage: (storage: string, newStorage: string) => Promise<void>
   moveItem: (fromStorage: string, toStorage: string, id: string) => Promise<void>
   selectItem: (storage: string, index: number) => void
   storage: (storageName: string) => StorageOperations
@@ -38,7 +38,6 @@ function createItemStore(): ItemStore {
     const counts: Record<string, number> = {}
     for (const storage of storages)
       counts[storage] = items[storage]?.length ?? 0
-
     return counts
   })
   const storageCount = $derived(storages.length)
@@ -77,6 +76,15 @@ function createItemStore(): ItemStore {
         delete items[storage]
         await db.foodItems.where('storage').equals(storage).delete()
       }
+    },
+    async updateStorage(storage: string, newStorage: string) {
+      const storageItems = items[storage]
+      for (const item of storageItems) {
+        item.storage = newStorage
+        await db.foodItems.update(item.id, item)
+      }
+      items[newStorage] = items[storage]
+      delete items[storage]
     },
     async moveItem(fromStorage: string, toStorage: string, id: string) {
       const item = this.storage(fromStorage).getItemById(id)
@@ -132,10 +140,15 @@ function createItemStore(): ItemStore {
         async deleteItem(id: string) {
           if (items[storageName]) {
             const index = items[storageName].findIndex(item => item.id === id)
-            if (index !== -1) {
-              items[storageName].splice(index, 1)
-              await db.foodItems.delete(id)
-            }
+            if (index === -1)
+              return
+
+            items[storageName].splice(index, 1)
+
+            if (items[storageName].length === 0)
+              items[storageName] = []
+
+            await db.foodItems.delete(id)
           }
         },
         async updateItem(item: UpdateItem) {

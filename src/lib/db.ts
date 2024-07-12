@@ -70,6 +70,14 @@ class LocalStorageDatabase {
 
       this.setTable('sortOptions', sortOptions)
     },
+    rename: (oldName: string, newName: string) => {
+      const sortOptions = this.getTable<SortStorage>('sortOptions')
+      const storageSort = sortOptions.find(sort => sort.storage === oldName)
+      if (storageSort)
+        storageSort.storage = newName
+
+      this.setTable('sortOptions', sortOptions)
+    },
   }
 }
 
