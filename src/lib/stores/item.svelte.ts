@@ -25,7 +25,6 @@ interface StorageOperations {
   addItem: (item: AddItem) => Promise<void>
   deleteItem: (id: string) => Promise<void>
   updateItem: (item: UpdateItem) => Promise<void>
-  importItem: (input: string) => Promise<void>
   sortItems: (sortBy: SortBy) => void
 }
 
@@ -138,21 +137,6 @@ function createItemStore(): ItemStore {
               await db.foodItems.update(item.id, item)
             }
           }
-        },
-        async importItem(input: string) {
-          if (input === '')
-            return
-
-          let name = input
-          let quantity = 1
-
-          const itemList = input.split(' ')
-          if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
-            name = input.slice(itemList[0].length).trim()
-            quantity = Number(itemList[0])
-          }
-
-          await this.addItem({ name, quantity })
         },
         sortItems(sortBy: SortBy) {
           if (items[storageName]) {

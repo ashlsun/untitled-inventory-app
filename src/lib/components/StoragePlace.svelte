@@ -13,20 +13,32 @@
   }: Props = $props()
 
   // State
-  let newItemName = $state('')
+  let newItemInput = $state('')
   let sortOption = $state<SortBy>('oldest')
   const storageOps = itemStore.storage(storageName)
 
   // Methods
-  function addItem() {
-    storageOps.importItem(newItemName)
-    newItemName = ''
+  function inputItem() {
+    if (newItemInput === '')
+      return
+
+    let name = newItemInput
+    let quantity = 1
+
+    const itemList = newItemInput.split(' ')
+    if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
+      name = newItemInput.slice(itemList[0].length).trim()
+      quantity = Number(itemList[0])
+    }
+    storageOps.addItem({ name, quantity })
+
+    newItemInput = ''
   }
 
   // Handlers
   function handleInputKeypress(event: KeyboardEvent) {
     if (event.key === 'Enter')
-      addItem()
+      inputItem()
   }
 
   function handleSort() {
@@ -84,14 +96,14 @@
   {/if}
   <input
     class="rounded-sm border border-black px-1 transition mt-5 outline-emerald-600 placeholder:text-stone-400 placeholder:italic placeholder:text-sm"
-    bind:value={newItemName}
+    bind:value={newItemInput}
     onkeypress={handleInputKeypress}
     maxlength="20"
     placeholder="Add a new item..."
   />
   <button
     class="transition hover:font-bold hover:text-emerald-700"
-    onclick={addItem}
+    onclick={inputItem}
   >
     +
   </button>
