@@ -73,7 +73,7 @@
 
   </div>
   <div role="group">
-    {#each itemStore.items[storageName] as item, i (item.name)}
+    {#each itemStore.items[storageName] as item, i (item.id)}
       <Item
         bind:item={itemStore.items[storageName][i]}
         isSelected={itemStore.selected.storage === storageName && itemStore.selected.index === i}
