@@ -256,24 +256,24 @@
       <li>Click on an item to select it.</li>
       <li class="ml-5">
         Double click or press
-        [<span class="icon tabler--arrow-back" aria-hidden="true"></span><b>Enter</b>] to expand.
+        [<span class="icon tabler--arrow-back" aria-hidden="true"></span> <b>Enter</b>] to expand.
       </li>
       <li class="ml-5">
-        [<span class="icon tabler--backspace" aria-hidden="true"></span><b>Backspace</b>] to delete.
+        [<span class="icon tabler--backspace" aria-hidden="true"></span> <b>Backspace</b>] to delete.
       </li>
       <li class="ml-5">
-        [<span class="icon tabler--arrow-up" aria-hidden="true"></span><b>Up</b>] or
-        [<span class="icon tabler--arrow-down" aria-hidden="true"></span><b>Down</b>] to select a different item.
+        [<span class="icon tabler--arrow-up" aria-hidden="true"></span> <b>Up</b>] or
+        [<span class="icon tabler--arrow-down" aria-hidden="true"></span> <b>Down</b>] to select a different item.
       </li>
       <li class="ml-5">
-        [<span class="icon tabler--arrow-left" aria-hidden="true"></span><b>Left</b>] or
-        [<span class="icon tabler--arrow-right" aria-hidden="true"></span><b>Right</b>] to change the quantity.
+        [<span class="icon tabler--arrow-left" aria-hidden="true"></span> <b>Left</b>] or
+        [<span class="icon tabler--arrow-right" aria-hidden="true"></span> <b>Right</b>] to change the quantity.
       </li>
 
       <li>Click on an item's name to edit it.</li>
       <li class="ml-5">
         When editing, press
-        [<span class="icon tabler--arrow-back" aria-hidden="true"></span><b>Enter</b>] to save,
+        [<span class="icon tabler--arrow-back" aria-hidden="true"></span> <b>Enter</b>] to save,
         [<b>Esc</b>] to cancel.
       </li>
     </div>
