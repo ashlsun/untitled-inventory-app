@@ -268,11 +268,12 @@
             : ' text-stone-400'}">{dayjs(item.dateAdded).fromNow()}
       </span>
       <button
-        class="transition items-end hover:text-red-600"
+        class="transition items-end text-stone-600 hover:text-red-600"
         onclick={() => {
           onDelete()
         }}
-      >delete
+      >
+        <span class="icon tabler--x font-bold" aria-hidden="true"></span>
       </button>
     </span>
   </div>
