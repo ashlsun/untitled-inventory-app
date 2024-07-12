@@ -73,23 +73,21 @@
 
   </div>
   <div role="group">
-    {#key sortOption}
-      {#each itemStore.items[storageName] as item, i (item.id)}
-        <Item
-          bind:item={itemStore.items[storageName][i]}
-          isSelected={itemStore.selected.storage === storageName && itemStore.selected.index === i}
-          onSelected={(amount = 0) => {
-            itemStore.selectItem(storageName, i + amount)
-          }}
-          onDelete={() => {
-            storageOps.deleteItem(item.id)
-          }}
-          onUpdate={(updatedItem: StoredItem) => {
-            storageOps.updateItem(updatedItem)
-          }}
-        />
-      {/each}
-    {/key}
+    {#each itemStore.items[storageName] as item, i (item.name)}
+      <Item
+        bind:item={itemStore.items[storageName][i]}
+        isSelected={itemStore.selected.storage === storageName && itemStore.selected.index === i}
+        onSelected={(amount = 0) => {
+          itemStore.selectItem(storageName, i + amount)
+        }}
+        onDelete={() => {
+          storageOps.deleteItem(item.id)
+        }}
+        onUpdate={(updatedItem: StoredItem) => {
+          storageOps.updateItem(updatedItem)
+        }}
+      />
+    {/each}
   </div>
   {#if storageOps.itemCount === 0}
     <div class="text-stone-400">Nothing in the {storageName}.</div>
