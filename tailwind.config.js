@@ -23,7 +23,10 @@ export default {
       customise: (content, name, prefix) => {
         switch (prefix) {
           case 'tabler':
-            return content.replaceAll('stroke-width="2"', 'stroke-width="3"')
+            if (name === 'x')
+              return content
+            else
+              return content.replaceAll('stroke-width="2"', 'stroke-width="3"')
         }
         return content
       },
