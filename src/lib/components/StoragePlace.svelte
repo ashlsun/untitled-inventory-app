@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { untrack } from 'svelte'
   import Item from '$lib/components/item/Item.svelte'
   import type { SortBy, StoredItem } from '$lib/types'
   import { sortBy } from '$lib/types'
@@ -25,8 +24,10 @@
   $effect(() => {
     if (localDb.storage.getSort(storageName) !== sortOption)
       localDb.storage.setSort(storageName, sortOption)
+  })
 
-    untrack(() => storageOps.sortItems(sortOption))
+  $effect(() => {
+    storageOps.sortItems(sortOption)
   })
 
   // Methods
@@ -53,8 +54,10 @@
       inputItem()
   }
 
-  function handleSort() {
-    storageOps.sortItems(sortOption)
+  function handleSort(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as SortBy
+    console.log('sortOption', value)
+    sortOption = value
   }
 
   function handleEnter(event: KeyboardEvent) {
@@ -79,6 +82,7 @@
       <span
         contenteditable
         role="textbox"
+        aria-label="storage name"
         aria-multiline="false"
         tabindex="0"
         onkeydown={handleEnter}
@@ -92,6 +96,7 @@
       <span class="text-sm italic text-stone-500 mr-1">sort:</span>
       <select
         class="text-sm py-1 my-1 italic text-stone-500"
+        role="listbox"
         bind:value={sortOption}
         onchange={handleSort}
       >
