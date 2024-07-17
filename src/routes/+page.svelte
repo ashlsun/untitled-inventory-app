@@ -25,6 +25,7 @@
   ))
 
   $effect(() => {
+    document.addEventListener('keydown', handleKeyDown)
     if (tips)
       tips.style.height = showTips ? `${tips.scrollHeight + 1}px` : '0px'
   })
@@ -153,6 +154,14 @@
       console.error('Error uploading image:', error)
       isProcessingReceipt = false
       errorProcessingReceipt = true
+    }
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.code.startsWith('Digit') && event.altKey) {
+      const digit = Number.parseInt(event.code.slice(-1))
+      if (itemStore.storages.length >= digit)
+        itemStore.selectItem(itemStore.storages[digit - 1], 0)
     }
   }
 
