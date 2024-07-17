@@ -66,7 +66,6 @@ function createItemStore(): ItemStore {
       if (!storages.includes(storage)) {
         storages.push(storage)
         items[storage] = []
-        await db.foodItems.where('storage').equals(storage).toArray()
       }
     },
     async removeStorage(storage: string) {
