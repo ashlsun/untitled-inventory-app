@@ -173,7 +173,7 @@
 </script>
 
 <div class="m-2">
-  <div class="flex w-full">
+  <div class="flex flex-col md:flex-row md:flex-wrap w-full">
     {#each itemStore.storages as storageName}
       <StoragePlace {storageName} />
     {/each}
