@@ -160,7 +160,8 @@
   function handleKeyDown(event: KeyboardEvent) {
     if (event.code.startsWith('Digit') && event.altKey) {
       const digit = Number.parseInt(event.code.slice(-1))
-      if (itemStore.storages.length >= digit)
+      console.log(itemStore.storages.length, itemStore.items[itemStore.storages[digit - 1]])
+      if (itemStore.storages.length >= digit && itemStore.items[itemStore.storages[digit - 1]].length > 0)
         itemStore.selectItem(itemStore.storages[digit - 1], 0)
     }
   }
