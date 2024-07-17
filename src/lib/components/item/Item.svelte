@@ -173,6 +173,9 @@
     else {
       console.log(event)
     }
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(event.key))
+      event.preventDefault()
   }
 
   function handleDateAddedKeydown(event: KeyboardEvent) {
