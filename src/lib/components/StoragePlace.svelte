@@ -45,6 +45,7 @@
     storageOps.addItem({ name, quantity })
     sortOption = 'none'
     newItemInput = ''
+    itemStore.clearSelected()
   }
 
   // Handlers

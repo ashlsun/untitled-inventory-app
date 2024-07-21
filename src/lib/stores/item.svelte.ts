@@ -17,6 +17,7 @@ export interface ItemStore {
   updateStorage: (storage: string, newStorage: string) => Promise<void>
   moveItem: (fromStorage: string, toStorage: string, id: string) => Promise<void>
   selectItem: (storage: string, index: number) => void
+  clearSelected: () => void
   storage: (storageName: string) => StorageOperations
 }
 
@@ -108,6 +109,9 @@ function createItemStore(): ItemStore {
       else {
         selected = { storage, index }
       }
+    },
+    clearSelected() {
+      selected = { storage: '', index: -1 }
     },
     storage(storageName: string): StorageOperations {
       return {
