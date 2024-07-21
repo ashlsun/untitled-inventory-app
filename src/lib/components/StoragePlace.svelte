@@ -117,6 +117,8 @@
         }}
         onDelete={() => {
           storageOps.deleteItem(item.id)
+          if (i === itemStore.items[storageName].length)
+            itemStore.selectItem(storageName, i - 1)
         }}
         onUpdate={(updatedItem: StoredItem) => {
           storageOps.updateItem(updatedItem)
