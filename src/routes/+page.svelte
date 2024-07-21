@@ -44,7 +44,11 @@
       'Authorization': `Bearer ${api_key}`,
     }
 
-    const existingInventory = JSON.stringify(itemStore.items)
+    const existingInventory: Record<string, string[]> = {}
+    for (const storageName of itemStore.storages)
+      existingInventory[storageName] = itemStore.items[storageName].map(item => item.name)
+
+    console.log(existingInventory)
     const payload = {
       model: 'gpt-4o',
       response_format: { type: 'json_object' },
@@ -54,7 +58,7 @@
           content: [
             {
               type: 'text',
-              text: getPromptText(existingInventory, itemStore.storages),
+              text: getPromptText(JSON.stringify(existingInventory)),
             },
             {
               type: 'image_url',
@@ -137,9 +141,8 @@
           },
         ) as StoredItem[]
 
-        console.log(itemsWithIdsAdded)
-        itemsWithIdsAdded.map((item: StoredItem) =>
-          itemStore.storage(item.storage).addItem(item),
+        itemsWithIdsAdded.map(async (item: StoredItem) =>
+          await itemStore.storage(item.storage).addItem(item),
         )
       }
       catch (e) {
