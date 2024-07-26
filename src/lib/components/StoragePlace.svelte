@@ -1,78 +1,147 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import Item from '$lib/components/item/Item.svelte'
-  import { type StoredItem } from '$lib/db'
-  import { type ItemStore } from '$lib/stores/item.svelte'
+  import type { SortBy, StoredItem } from '$lib/types'
+  import { sortBy } from '$lib/types'
+  import { itemStore } from '$lib/stores/item.svelte'
+  import { localDb } from '$lib/db'
+  import { stopPropagation } from '$lib/utils'
 
   // Props
   type Props = {
-    storagePlaceName: string
-    items: ItemStore | null
+    storageName: string
   }
 
   const {
-    storagePlaceName,
-    items,
+    storageName,
   }: Props = $props()
 
   // State
-  let newItemName = $state('')
+  let newItemInput = $state('')
+  let sortOption = $state<SortBy>(localDb.storage.getSort(storageName))
+  let previousStorageName = storageName
+  const storageOps = $derived(itemStore.storage(storageName))
+
+  // Reactive declarations
+  $effect(() => {
+    if (localDb.storage.getSort(storageName) !== sortOption)
+      localDb.storage.setSort(storageName, sortOption)
+
+    untrack(() => storageOps.sortItems(sortOption))
+  })
 
   // Methods
-  function addItem() {
-    if (items)
-      items.add(newItemName)
-    newItemName = ''
+  function inputItem() {
+    if (newItemInput === '')
+      return
+
+    let name = newItemInput
+    let quantity = 1
+
+    const itemList = newItemInput.split(' ')
+    if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
+      name = newItemInput.slice(itemList[0].length).trim()
+      quantity = Number(itemList[0])
+    }
+    storageOps.addItem({ name, quantity })
+    sortOption = 'none'
+    newItemInput = ''
+    itemStore.clearSelected()
   }
 
   // Handlers
-  function handleInputKeypress(event: KeyboardEvent) {
+  function handleInputKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter')
-      addItem()
+      inputItem()
+  }
+
+  function handleSort(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as SortBy
+    console.log('sortOption', value)
+    sortOption = value
+  }
+
+  function handleEnter(event: KeyboardEvent) {
+    if (event.key !== 'Enter')
+      return
+
+    const target = event.target as HTMLElement
+    event.preventDefault()
+    itemStore.updateStorage(previousStorageName, target.textContent || '')
+    localDb.storage.rename(previousStorageName, target.textContent || '')
+    previousStorageName = target.textContent || ''
+    target.blur()
   }
 </script>
 
 <div
-  class="rounded-sm border m-3 inline-block h-fit min-w-80 max-w-[420px] border-black p-1"
+  class="rounded-sm border m-3 inline-block h-fit min-w-80 max-w-[420px] border-black px-2 pb-2"
   role="tree"
 >
-  <h1 class="font-bold">{storagePlaceName}
-    {#if items} <span class="text-stone-400">({items.list.length})</span> {/if}
-  </h1>
-  {#if items}
-    {@const store = items}
-    <div role="group">
-      {#each items.list as item, i (item.id)}
-        <Item
-          bind:item={items.list[i]}
-          isSelected={items.selected === i}
-          onSelected={(amount = 0) => {
-            store.select(i + amount)
-          }}
-          onDelete={() => {
-            store.delete(item.id)
-          }}
-          onUpdate={(updatedItem: StoredItem) => {
-            store.update(item.id, updatedItem)
-          }}
-        />
-      {/each}
+  <div class="flex w-full justify-between items-center ">
+    <h1>
+      <span
+        contenteditable
+        role="textbox"
+        aria-label="storage name"
+        aria-multiline="false"
+        tabindex="0"
+        onkeydown={handleEnter}
+      >
+        <b>{storageName}</b>
+      </span>
+      <span class="text-stone-400">({itemStore.itemCounts[storageName]})</span>
+    </h1>
+
+    <div class="flex items-center">
+      <span class="text-sm italic text-stone-500 mr-1">sort:</span>
+      <select
+        class="text-sm py-1 my-1 italic text-stone-500"
+        role="listbox"
+        bind:value={sortOption}
+        onchange={handleSort}
+      >
+        {#each sortBy as sort}
+          <option value={sort} hidden={sort === 'none'}>{sort}</option>
+        {/each}
+      </select>
     </div>
-    {#if items.list.length === 0}
-      <div class="text-stone-400">Nothing in the {storagePlaceName}.</div>
-    {/if}
-  {:else}
-    <p class="text-stone-400">Loading...</p>
+
+  </div>
+  <div role="group">
+    {#each itemStore.items[storageName] as item, i (item.id)}
+      <Item
+        bind:item={itemStore.items[storageName][i]}
+        isSelected={itemStore.selected.storage === storageName && itemStore.selected.index === i}
+        isExpanded={itemStore.expanded && itemStore.selected.storage === storageName && itemStore.selected.index === i}
+        onSelected={(amount = 0) => {
+          itemStore.selectItem(storageName, i + amount)
+        }}
+        onDelete={() => {
+          storageOps.deleteItemById(item.id)
+          if (i === itemStore.items[storageName].length)
+            itemStore.selectItem(storageName, i - 1)
+        }}
+        onToggleExpanded={itemStore.toggleExpanded}
+        onUpdate={(updatedItem: StoredItem) => {
+          storageOps.updateItem(updatedItem)
+        }}
+      />
+    {/each}
+  </div>
+  {#if itemStore.itemCounts[storageName] === 0}
+    <div class="text-stone-400">Nothing in the {storageName}.</div>
   {/if}
   <input
     class="rounded-sm border border-black px-1 transition mt-5 outline-emerald-600 placeholder:text-stone-400 placeholder:italic placeholder:text-sm"
-    bind:value={newItemName}
-    onkeypress={handleInputKeypress}
+    bind:value={newItemInput}
+    onkeydown={stopPropagation(handleInputKeydown)}
     maxlength="20"
     placeholder="Add a new item..."
   />
   <button
-    class="transition hover:font-bold hover:text-emerald-600"
-    onclick={addItem}
+    class="transition hover:font-bold hover:text-emerald-700"
+    onclick={inputItem}
   >
     +
   </button>

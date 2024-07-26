@@ -3,39 +3,34 @@
   import type { StoredItem } from '$lib/types'
   import { getRandomItems, possibleItems } from '$lib/components/item/itemGenerator'
   import StoragePlace from '$lib/components/StoragePlace.svelte'
-  import { type ItemStore, createItemStore } from '$lib/stores/item.svelte'
-  import { encodeImage } from '$lib/imageUtils'
-  import { getPromptText } from '$lib/promptText'
+  import { encodeImage } from '$lib/utils'
+  import { getPromptText } from '$lib/prompt'
+  import { itemStore } from '$lib/stores/item.svelte'
 
+  // State
   let showTips = $state(false)
   let tips: HTMLDivElement | null = $state(null)
-
-  let fridgeItems: ItemStore | null = $state(null)
-  let freezerItems: ItemStore | null = $state(null)
-
   let numRandomItemsToAdd = $state(3)
-  let selectedStoragePlace = $state('fridge')
+  let selectedStoragePlace = $state(itemStore.storages[0])
   let openAiKey = $state('')
   let isOpenAiKeyVisible = $state(false)
 
+  // Reactive declarations
+  const randomItemList = $derived(getRandomItems(
+    possibleItems.filter(
+      item => item.storage === selectedStoragePlace,
+    ),
+    numRandomItemsToAdd,
+    numRandomItemsToAdd,
+  ))
+
   $effect(() => {
-    createItemStore('fridge').then(
-      (itemStore) => {
-        fridgeItems = itemStore
-      },
-    )
-
-    createItemStore('freezer').then(
-      (itemStore) => {
-        freezerItems = itemStore
-      },
-    )
-
-    // TODO: fix broken accordion on resize
+    document.addEventListener('keydown', handleKeyDown)
     if (tips)
       tips.style.height = showTips ? `${tips.scrollHeight + 1}px` : '0px'
   })
 
+  // GPT API
   let selectedFile: File | null = null
   let isProcessingReceipt = $state(false)
   let errorProcessingReceipt = $state(false)
@@ -49,7 +44,11 @@
       'Authorization': `Bearer ${api_key}`,
     }
 
-    const existingInventory = JSON.stringify(fridgeItems?.list)
+    const existingInventory: Record<string, string[]> = {}
+    for (const storageName of itemStore.storages)
+      existingInventory[storageName] = itemStore.items[storageName].map(item => item.name)
+
+    console.log(existingInventory)
     const payload = {
       model: 'gpt-4o',
       response_format: { type: 'json_object' },
@@ -59,7 +58,7 @@
           content: [
             {
               type: 'text',
-              text: getPromptText(existingInventory),
+              text: getPromptText(JSON.stringify(existingInventory)),
             },
             {
               type: 'image_url',
@@ -78,13 +77,17 @@
       body: JSON.stringify(payload),
     })
 
-    if (!response.ok)
-      throw new Error(`OpenAI API request failed: ${response.status} ${response.statusText}`)
+    if (!response.ok) {
+      throw new Error(
+        `OpenAI API request failed: ${response.status} ${response.statusText}`,
+      )
+    }
 
     console.log(response)
     return response.json()
   }
 
+  // Handlers
   function handleFileSelect(event: Event) {
     const target = event.target as HTMLInputElement
     const files = target.files
@@ -121,7 +124,7 @@
         const json_items = json_content.items
         console.log(json_items)
         const itemsWithIdsAdded = json_items.map(
-          (extractedItem: { name: string, quantity: number, shelfLife: number }) => {
+          (extractedItem: StoredItem) => {
             console.log('processing', JSON.stringify(extractedItem))
             const processedItem = JSON.parse(JSON.stringify(extractedItem))
             if (processedItem.id === 'to be generated') {
@@ -131,13 +134,16 @@
             else {
               console.log('existing item', processedItem)
             }
-            processedItem.storage = 'fridge'
+            // processedItem.storage = 'fridge'
+            console.log('processed', processedItem)
+            console.log('processed storage', processedItem.storage)
             return processedItem
           },
-        )
+        ) as StoredItem[]
 
-        console.log(itemsWithIdsAdded)
-        itemsWithIdsAdded.map((item: StoredItem) => fridgeItems?.importItem(item))
+        itemsWithIdsAdded.map(async (item: StoredItem) =>
+          await itemStore.storage(item.storage).addItem(item),
+        )
       }
       catch (e) {
         console.log('darn couldn\'t parse', e)
@@ -154,36 +160,77 @@
     }
   }
 
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.code?.startsWith('Digit') && event.altKey) {
+      const digit = Number.parseInt(event.code.slice(-1))
+      console.log(itemStore.storages.length, itemStore.items[itemStore.storages[digit - 1]])
+      if (itemStore.storages.length >= digit && itemStore.items[itemStore.storages[digit - 1]].length > 0)
+        itemStore.selectItem(itemStore.storages[digit - 1], 0)
+    }
+    else if (event.key === 'Enter') {
+      itemStore.toggleExpanded()
+    }
+    else if (event.key === 'ArrowUp') {
+      itemStore.selectItem(itemStore.selected.storage, itemStore.selected.index - 1)
+    }
+    else if (event.key === 'ArrowDown') {
+      itemStore.selectItem(itemStore.selected.storage, itemStore.selected.index + 1)
+    }
+    else if (event.key === 'Backspace') {
+      itemStore.storage(itemStore.selected.storage).deleteItemByIndex(itemStore.selected.index)
+    }
+    else if (event.key === 'ArrowRight') {
+      itemStore.incrementSelectedQuantity()
+    }
+    else if (event.key === 'ArrowLeft') {
+      itemStore.decrementSelectedQuantity()
+    }
+  }
+
+  // Methods
+  function addStorage() {
+    itemStore.addStorage(`storage ${itemStore.storages.length + 1}`)
+  }
 </script>
 
 <div class="m-2">
-  <div class="flex w-full">
-    <StoragePlace storagePlaceName="fridge"
-                  items={fridgeItems} />
-    <StoragePlace storagePlaceName="freezer"
-                  items={freezerItems} />
-
+  <div class="flex flex-col md:flex-row md:flex-wrap w-full">
+    {#each itemStore.storages as storageName}
+      <StoragePlace {storageName} />
+    {/each}
+    <button
+      class="transition text-lg hover:text-sky-600 h-fit w-5 mt-3"
+      onclick={addStorage}
+    >
+      +
+    </button>
   </div>
   <div class="m-2 text-sm">
     <b>DEMO FEATURE:</b>
     <span class="italic">
       Add
-      <input type="number" min="1" max="5" bind:value={numRandomItemsToAdd} class="max-w-8 italic always-display-spinner" />
+      <input
+        type="number"
+        min="1"
+        max="5"
+        bind:value={numRandomItemsToAdd}
+        class="max-w-8 italic always-display-spinner"
+      />
       random item{numRandomItemsToAdd !== 1 ? 's' : ''} to the
-
-      <select name="storage place" id="storageplaceselect" bind:value={selectedStoragePlace}>
-        <option value="fridge">fridge</option>
-        <option value="freezer">freezer</option>
+      <select
+        name="storage place"
+        id="storageplaceselect"
+        bind:value={selectedStoragePlace}
+      >
+        {#each itemStore.storages as storageName}
+          <option value={storageName}>{storageName}</option>
+        {/each}
       </select>
       <button
         class="transition hover:font-bold hover:text-emerald-600"
         onclick={() => {
-          // TODO: broken when adding more items after everything has already been added once
-          const randomItemList = getRandomItems(possibleItems.filter(item => (item.storage === selectedStoragePlace)), numRandomItemsToAdd, numRandomItemsToAdd)
-          if (selectedStoragePlace === 'fridge')
-            randomItemList.map(item => fridgeItems?.importItem(item))
-          else if (selectedStoragePlace === 'freezer')
-            randomItemList.map(item => freezerItems?.importItem(item))
+          for (const item of randomItemList)
+            itemStore.storage(selectedStoragePlace).addItem(item)
         }}
       >
         +
@@ -196,23 +243,40 @@
     <i>Add items via a photo of your receipt:</i>
     <div class="ml-4">
       <div>
-        <input name="openaikey" class="border border-black border-1 rounded-sm min-w-[200px] px-1 placeholder:text-xs placeholder:italic placeholder:text-stone-400 my-2 outline-emerald-600" type={isOpenAiKeyVisible ? 'text' : 'password'} bind:value={openAiKey} placeholder="Paste your OpenAI key...">
-        <button class="hover:text-emerald-600 transition" onclick={() => isOpenAiKeyVisible = !isOpenAiKeyVisible}>{#if isOpenAiKeyVisible}<span class="icon tabler--eye-off" aria-hidden="true"></span>{:else}<span class="icon tabler--eye" aria-hidden="true"></span>{/if}</button>
+        <input
+          bind:value={openAiKey}
+          name="openaikey"
+          class="border border-black border-1 rounded-sm min-w-[200px] px-1 placeholder:text-xs placeholder:italic placeholder:text-stone-400 my-2 outline-emerald-600"
+          type={isOpenAiKeyVisible ? 'text' : 'password'}
+          placeholder="Paste your OpenAI key..."
+        />
+        <button
+          class="hover:text-emerald-600 transition"
+          onclick={() => (isOpenAiKeyVisible = !isOpenAiKeyVisible)}
+        >
+          {#if isOpenAiKeyVisible}<span class="icon tabler--eye-off" aria-hidden="true"></span>{:else}<span class="icon tabler--eye" aria-hidden="true"></span>{/if}
+        </button>
       </div>
       <div class="flex items-center text-xs mb-2">
-        <input type="file" accept="image/*" class="disabled:cursor-not-allowed disabled:text-stone-400" onchange={handleFileSelect} disabled={openAiKey === ''} />
-        <button class="transition hover:font-bold disabled:cursor-not-allowed enabled:hover:text-emerald-600 text-base" disabled={openAiKey === ''} onclick={handleUpload}
-        >+</button
+        <input
+          type="file"
+          accept="image/*"
+          class="disabled:cursor-not-allowed disabled:text-stone-400"
+          onchange={handleFileSelect}
+          disabled={openAiKey === ''}
+        />
+        <button
+          class="transition hover:font-bold disabled:cursor-not-allowed enabled:hover:text-emerald-600 text-base"
+          disabled={openAiKey === ''}
+          onclick={handleUpload}>+</button
         >
       </div>
       {#if isProcessingReceipt}
         <div class="italic">One moment while receipt is being processed...</div>
-      {:else if errorProcessingReceipt}
+        {:else if errorProcessingReceipt}
         <div class="text-red-800">Dang! An error occurred :(</div>
       {/if}
-
     </div>
-
   </div>
   <div class="m-2 mt-12 max-w-sm">
     <h1>
@@ -221,7 +285,8 @@
         (<button
           aria-label="{showTips ? 'Hide' : 'Show'} tips"
           class="decoration-1 underline-offset-2 underline"
-          onclick={() => showTips = !showTips}>{showTips ? 'hide' : 'show'}
+          onclick={() => (showTips = !showTips)}>
+          {showTips ? 'hide' : 'show'}
         </button>)
       </span>
     </h1>
@@ -230,7 +295,7 @@
       bind:this={tips}
       class="text-sm overflow-hidden text-stone-500 transition-all"
     >
-      <p>This is a demo. Nothing is saved on a server. </p>
+      <p>This is a demo. Nothing is saved on a server.</p>
       <li>Click on an item to select it.</li>
       <li class="ml-5">
         Double click or press

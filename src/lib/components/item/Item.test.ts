@@ -30,6 +30,8 @@ describe('the Item component', () => {
         item: mockItem,
         onDelete: mockDeleteItem,
         isSelected: false,
+        isExpanded: false,
+        onToggleExpanded: vi.fn(),
         onSelected: vi.fn(),
         onUpdate: vi.fn(),
       },
@@ -43,11 +45,11 @@ describe('the Item component', () => {
   })
 
   it('renders correctly', () => {
-    const { getByText, getByDisplayValue } = component
+    const { getByText, getByDisplayValue, getByTitle } = component
 
     expect(getByText(/Test Item/)).toBeTruthy()
     expect(getByDisplayValue('2')).toBeTruthy()
-    expect(getByText('delete')).toBeTruthy()
+    expect(getByTitle('delete')).toBeTruthy()
   })
 
   it('increases quantity on right arrow key press', async () => {
@@ -76,9 +78,9 @@ describe('the Item component', () => {
   })
 
   it('calls deleteItem when delete button is clicked', async () => {
-    const { getByText } = component
+    const { getByTitle } = component
 
-    await fireEvent.click(getByText('delete'))
+    await fireEvent.click(getByTitle('delete'))
     expect(mockDeleteItem).toHaveBeenCalledOnce()
   })
 })

@@ -1,86 +1,247 @@
 import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import { possibleItems } from '$lib/components/item/itemGenerator'
-import type { StoredItem } from '$lib/types'
+import type { SortBy, StoredItem } from '$lib/types'
 import { db } from '$lib/db'
 
+type AddItem = Pick<StoredItem, 'name'> & Partial<Omit<StoredItem, 'name'>>
+type UpdateItem = Pick<StoredItem, 'id'> & Partial<Omit<StoredItem, 'id'>>
+
 export interface ItemStore {
-  readonly list: StoredItem[]
-  add: (name: string) => void
-  delete: (id: string) => void
-  readonly selected: number
-  select: (i: number) => void
-  update: (id: string, item: StoredItem) => void
-  importItem: (item: StoredItem) => void
+  items: Record<string, StoredItem[]>
+  storages: string[]
+  itemCounts: Record<string, number>
+  storageCount: number
+  selected: { storage: string, index: number }
+  expanded: boolean
+  addStorage: (storage: string) => Promise<void>
+  removeStorage: (storage: string) => Promise<void>
+  updateStorage: (storage: string, newStorage: string) => Promise<void>
+  moveItem: (fromStorage: string, toStorage: string, id: string) => Promise<void>
+  selectItem: (storage: string, index: number) => void
+  clearSelected: () => void
+  deleteSelected: () => void
+  decrementSelectedQuantity: () => void
+  incrementSelectedQuantity: () => void
+  toggleExpanded: () => void
+  storage: (storageName: string) => StorageOperations
 }
 
-export async function createItemStore(storagePlaceName: string) {
-  const items = await db.foodItems.where('storage').equals(storagePlaceName).toArray()
+interface StorageOperations {
+  getItemById: (id: string) => StoredItem | undefined
+  getItemByIndex: (i: number) => StoredItem | undefined
+  getItemByName: (name: string) => StoredItem | undefined
+  addItem: (item: AddItem) => Promise<void>
+  deleteItemById: (id: string) => Promise<void>
+  deleteItemByIndex: (index: number) => Promise<void>
+  updateItem: (item: UpdateItem) => Promise<void>
+  sortItems: (sortBy: SortBy) => void
+}
 
-  const list = $state<StoredItem[]>(items)
-  let selected = $state(-1)
+export const itemStore = createItemStore()
 
-  return {
-    get list() {
-      return list
-    },
-    add(input: string) {
-      if (input === '')
-        return
+function createItemStore(): ItemStore {
+  const items = $state<Record<string, StoredItem[]>>({})
+  const storages = $derived(Object.keys(items))
+  const itemCounts = $derived.by(() => {
+    const counts: Record<string, number> = {}
+    for (const storage of storages)
+      counts[storage] = items[storage]?.length ?? 0
+    return counts
+  })
+  const storageCount = $derived(storages.length)
+  let selected = $state<{ storage: string, index: number }>({ storage: '', index: -1 })
+  let expanded = $state(false)
 
-      let name = input
-      let quantity = 1
+  async function loadInitialData() {
+    const storedItems = await db.foodItems.toArray()
 
-      const itemList = input.split(' ')
-      if (itemList.length > 1 && itemList[0].match(/^\d+$/)) {
-        name = input.slice(itemList[0].length).trim()
-        quantity = Math.min(Number(itemList[0]), 99)
+    storedItems.forEach((item) => {
+      if (!items[item.storage])
+        items[item.storage] = []
+
+      items[item.storage].push(item)
+    })
+  }
+
+  loadInitialData()
+
+  const store: ItemStore = {
+    get items() { return items },
+    get storages() { return storages },
+    get itemCounts() { return itemCounts },
+    get storageCount() { return storageCount },
+    get selected() { return selected },
+    get expanded() { return expanded },
+    async addStorage(storage: string) {
+      if (!storages.includes(storage)) {
+        storages.push(storage)
+        items[storage] = []
       }
-
-      const newItem: StoredItem = {
-        id: uuid(), // Generate UUID here
-        name,
-        quantity,
-        dateAdded: dayjs().format('YYYY-MM-DD'),
-        shelfLife: 5,
-        storage: storagePlaceName,
-      }
-
-      db.foodItems.add(newItem)
-      list.push(newItem)
-      selected = list.length
     },
-    importItem(item: StoredItem) {
-      if (item.storage !== storagePlaceName)
-        throw new Error(`Imported item's storage ${item.storage} did not match destination ${storagePlaceName}`)
-
-      db.foodItems.add(item)
-      list.push(item)
-      selected = list.length
-    },
-    delete(id: string) {
-      db.foodItems.delete(id)
-
-      const index = list.findIndex(item => item.id === id)
+    async removeStorage(storage: string) {
+      const index = storages.indexOf(storage)
       if (index !== -1) {
-        list.splice(index, 1)
-        if (selected >= list.length)
-          selected = Math.max(0, list.length - 1)
+        storages.splice(index, 1)
+        delete items[storage]
+        await db.foodItems.where('storage').equals(storage).delete()
       }
     },
-    update(id: string, item: StoredItem) {
-      db.foodItems.update(item.id, item)
+    async updateStorage(storage: string, newStorage: string) {
+      const storageItems = items[storage]
+      for (const item of storageItems) {
+        item.storage = newStorage
+        await db.foodItems.update(item.id, item)
+      }
+      items[newStorage] = items[storage]
+      delete items[storage]
     },
-    get selected() {
-      return selected
+    async moveItem(fromStorage: string, toStorage: string, id: string) {
+      const item = this.storage(fromStorage).getItemById(id)
+      if (item) {
+        await this.storage(fromStorage).deleteItemById(id)
+        item.storage = toStorage
+        await this.storage(toStorage).addItem(item)
+      }
     },
-    select(i: number) {
-      if (i < 0)
-        selected = 0
-      else if (i >= list.length)
-        selected = list.length - 1
-      else
-        selected = i
+    selectItem(storage: string, index: number) {
+      if (selected.storage !== storage || selected.index !== index)
+        expanded = false
+
+      const storageIndex = storages.indexOf(storage)
+      if (index < 0) {
+        const newStorageIndex = storageIndex - 1 < 0 ? storages.length - 1 : storageIndex - 1
+        const newStorage = storages[newStorageIndex]
+        selected = { storage: newStorage, index: items[newStorage].length - 1 }
+      }
+      else if (index >= items[storage].length) {
+        const newStorageIndex = (storageIndex + 1) % storages.length
+        const newStorage = storages[newStorageIndex]
+        selected = { storage: newStorage, index: 0 }
+      }
+      else {
+        selected = { storage, index }
+      }
+    },
+    toggleExpanded() {
+      expanded = !expanded
+    },
+    clearSelected() {
+      selected = { storage: '', index: -1 }
+    },
+    deleteSelected() {
+      this.storage(itemStore.selected.storage).deleteItemByIndex(itemStore.selected.index)
+    },
+    decrementSelectedQuantity() {
+      const item = this.storage(itemStore.selected.storage).getItemByIndex(itemStore.selected.index)
+      if (item) {
+        const currentQuantity = item.quantity
+        this.storage(itemStore.selected.storage).updateItem({ ...item, quantity: currentQuantity - 1 })
+      }
+    },
+    incrementSelectedQuantity() {
+      const item = this.storage(itemStore.selected.storage).getItemByIndex(itemStore.selected.index)
+      if (item) {
+        const currentQuantity = item.quantity
+        this.storage(itemStore.selected.storage).updateItem({ ...item, quantity: currentQuantity + 1 })
+      }
+    },
+    storage(storageName: string): StorageOperations {
+      return {
+        getItemById: (id: string) => items[storageName]?.find(item => item.id === id),
+        getItemByIndex: (i: number) => items[storageName][i],
+        getItemByName: (name: string) => items[storageName]?.find(item => item.name === name),
+        async addItem(item: AddItem) {
+          if (!storages.includes(storageName))
+            await store.addStorage(storageName)
+
+          const existing = this.getItemByName(item.name)
+          if (existing) {
+            existing.quantity = Math.min(99, existing.quantity + (item.quantity ?? 0))
+            await this.updateItem(existing)
+          }
+          else {
+            const newItem: StoredItem = {
+              ...item,
+              id: uuid(),
+              quantity: Math.min(99, item.quantity ?? 1),
+              dateAdded: item.dateAdded ?? dayjs().format('YYYY-MM-DD'),
+              shelfLife: item.shelfLife ?? 5,
+              storage: storageName,
+            }
+
+            await db.foodItems.add(newItem)
+            items[storageName].push(newItem)
+          }
+        },
+        async deleteItemById(id: string) {
+          if (items[storageName]) {
+            const index = items[storageName].findIndex(item => item.id === id)
+            if (index === -1)
+              return
+
+            items[storageName].splice(index, 1)
+
+            if (items[storageName].length === 0)
+              items[storageName] = []
+
+            await db.foodItems.delete(id)
+          }
+        },
+        async deleteItemByIndex(index: number) {
+          if (!items[storageName])
+            return
+
+          const deletedItem = items[storageName].splice(index, 1)[0]
+
+          if (items[storageName].length === 0)
+            items[storageName] = []
+
+          await db.foodItems.delete(deletedItem.id)
+        },
+        async updateItem(item: UpdateItem) {
+          if (items[storageName]) {
+            const existing = this.getItemById(item.id)
+            if (existing) {
+              Object.assign(existing, item)
+              await db.foodItems.update(item.id, item)
+              if (item.quantity === 0)
+                setTimeout(() => this.deleteItemById(item.id), 400)
+            }
+          }
+        },
+        sortItems(sortBy: SortBy) {
+          if (items[storageName]) {
+            let selectedId: string | undefined
+
+            if (selected.index !== -1)
+              selectedId = items[storageName][selected.index]?.id
+
+            items[storageName].sort((a, b) => {
+              switch (sortBy) {
+                case 'a to z':
+                  return a.name.localeCompare(b.name)
+                case 'z to a':
+                  return b.name.localeCompare(a.name)
+                case 'quantity':
+                  return b.quantity - a.quantity
+                case 'oldest':
+                  return new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
+                case 'newest':
+                  return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+                default:
+                  return 0
+              }
+            })
+
+            if (selected.index !== -1) {
+              const selectedIndex = items[storageName].findIndex(item => item.id === selectedId)
+              selected = { storage: storageName, index: selectedIndex }
+            }
+          }
+        },
+      }
     },
   }
+
+  return store
 }
