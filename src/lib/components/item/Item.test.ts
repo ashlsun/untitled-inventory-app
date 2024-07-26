@@ -30,6 +30,8 @@ describe('the Item component', () => {
         item: mockItem,
         onDelete: mockDeleteItem,
         isSelected: false,
+        isExpanded: false,
+        onToggleExpanded: vi.fn(),
         onSelected: vi.fn(),
         onUpdate: vi.fn(),
       },

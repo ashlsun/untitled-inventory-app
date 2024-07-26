@@ -16,10 +16,12 @@ vi.mock('$lib/db', () => ({
 
 const mockStorageOperations = {
   addItem: vi.fn(),
-  deleteItem: vi.fn(),
+  deleteItemById: vi.fn(),
+  deleteItemByIndex: vi.fn(),
   updateItem: vi.fn(),
   sortItems: vi.fn(),
   getItemById: vi.fn(),
+  getItemByIndex: vi.fn(),
   getItemByName: vi.fn(),
 }
 

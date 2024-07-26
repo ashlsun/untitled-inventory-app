@@ -5,6 +5,7 @@
   import { sortBy } from '$lib/types'
   import { itemStore } from '$lib/stores/item.svelte'
   import { localDb } from '$lib/db'
+  import { stopPropagation } from '$lib/utils'
 
   // Props
   type Props = {
@@ -49,7 +50,7 @@
   }
 
   // Handlers
-  function handleInputKeypress(event: KeyboardEvent) {
+  function handleInputKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter')
       inputItem()
   }
@@ -74,7 +75,7 @@
 </script>
 
 <div
-  class="rounded-sm border m-3 inline-block h-fit min-w-80 max-w-[420px] border-black p-1"
+  class="rounded-sm border m-3 inline-block h-fit min-w-80 max-w-[420px] border-black px-2 pb-2"
   role="tree"
 >
   <div class="flex w-full justify-between items-center ">
@@ -112,14 +113,16 @@
       <Item
         bind:item={itemStore.items[storageName][i]}
         isSelected={itemStore.selected.storage === storageName && itemStore.selected.index === i}
+        isExpanded={itemStore.expanded && itemStore.selected.storage === storageName && itemStore.selected.index === i}
         onSelected={(amount = 0) => {
           itemStore.selectItem(storageName, i + amount)
         }}
         onDelete={() => {
-          storageOps.deleteItem(item.id)
+          storageOps.deleteItemById(item.id)
           if (i === itemStore.items[storageName].length)
             itemStore.selectItem(storageName, i - 1)
         }}
+        onToggleExpanded={itemStore.toggleExpanded}
         onUpdate={(updatedItem: StoredItem) => {
           storageOps.updateItem(updatedItem)
         }}
@@ -132,7 +135,7 @@
   <input
     class="rounded-sm border border-black px-1 transition mt-5 outline-emerald-600 placeholder:text-stone-400 placeholder:italic placeholder:text-sm"
     bind:value={newItemInput}
-    onkeypress={handleInputKeypress}
+    onkeydown={stopPropagation(handleInputKeydown)}
     maxlength="20"
     placeholder="Add a new item..."
   />

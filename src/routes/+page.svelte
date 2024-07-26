@@ -161,11 +161,29 @@
   }
 
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.code.startsWith('Digit') && event.altKey) {
+    if (event.code?.startsWith('Digit') && event.altKey) {
       const digit = Number.parseInt(event.code.slice(-1))
       console.log(itemStore.storages.length, itemStore.items[itemStore.storages[digit - 1]])
       if (itemStore.storages.length >= digit && itemStore.items[itemStore.storages[digit - 1]].length > 0)
         itemStore.selectItem(itemStore.storages[digit - 1], 0)
+    }
+    else if (event.key === 'Enter') {
+      itemStore.toggleExpanded()
+    }
+    else if (event.key === 'ArrowUp') {
+      itemStore.selectItem(itemStore.selected.storage, itemStore.selected.index - 1)
+    }
+    else if (event.key === 'ArrowDown') {
+      itemStore.selectItem(itemStore.selected.storage, itemStore.selected.index + 1)
+    }
+    else if (event.key === 'Backspace') {
+      itemStore.storage(itemStore.selected.storage).deleteItemByIndex(itemStore.selected.index)
+    }
+    else if (event.key === 'ArrowRight') {
+      itemStore.incrementSelectedQuantity()
+    }
+    else if (event.key === 'ArrowLeft') {
+      itemStore.decrementSelectedQuantity()
     }
   }
 

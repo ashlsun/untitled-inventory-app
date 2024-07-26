@@ -8,12 +8,14 @@
   export type Props = {
     item: StoredItem
     isSelected: boolean
+    isExpanded: boolean
   }
 
   export type Events = {
     onSelected: (index?: number) => void
     onDelete: () => void
     onUpdate: (item: StoredItem) => void
+    onToggleExpanded: () => void
   }
 </script>
 
@@ -21,13 +23,14 @@
   const {
     item = $bindable(),
     isSelected,
+    isExpanded,
     onSelected,
     onDelete,
     onUpdate,
+    onToggleExpanded,
   }: Props & Events = $props()
 
   // State
-  let isExpanded = $state(false)
   let isEditingName = $state(false)
   let draftName = $state(item.name)
   let draftShelfLife = $state(item.shelfLife)
@@ -45,10 +48,8 @@
   )
 
   $effect(() => {
-    if (isSelected)
-      itemDiv.focus()
-    else
-      isExpanded = false
+    if (document.activeElement === itemDiv)
+      onSelected()
   })
 
   // Dayjs configuration
@@ -143,39 +144,39 @@
   }
 
   function handleKeyDownOnItem(event: KeyboardEvent) {
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
-      return
+    //   if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
+  //     return
 
-    if (event.key === 'Delete' || event.key === 'Backspace') {
-      if (isExpanded) {
-        isExpanded = false
-        setTimeout(() => onDelete(), 70)
-      }
-      else {
-        onDelete()
-      }
-    }
-    else if (event.key === 'Enter') {
-      isExpanded = !isExpanded
-    }
-    else if (event.key === 'ArrowUp') {
-      onSelected(-1)
-    }
-    else if (event.key === 'ArrowDown') {
-      onSelected(1)
-    }
-    else if (event.key === 'ArrowRight') {
-      changeQuantity(item.quantity + 1)
-    }
-    else if (event.key === 'ArrowLeft') {
-      changeQuantity(item.quantity - 1)
-    }
-    else {
-      console.log(event)
-    }
+  //   if (event.key === 'Delete' || event.key === 'Backspace') {
+  //     if (isExpanded) {
+  //       isExpanded = false
+  //       setTimeout(() => onDelete(), 70)
+  //     }
+  //     else {
+  //       onDelete()
+  //     }
+  //   }
+  //   else if (event.key === 'Enter') {
+  //     isExpanded = !isExpanded
+  //   }
+  //   else if (event.key === 'ArrowUp') {
+  //     onSelected(-1)
+  //   }
+  //   else if (event.key === 'ArrowDown') {
+  //     onSelected(1)
+  //   }
+  //   else if (event.key === 'ArrowRight') {
+  //     changeQuantity(item.quantity + 1)
+  //   }
+  //   else if (event.key === 'ArrowLeft') {
+  //     changeQuantity(item.quantity - 1)
+  //   }
+  //   else {
+    console.log(event)
+  //   }
 
-    if (['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(event.key))
-      event.preventDefault()
+  //   if (['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(event.key))
+  //     event.preventDefault()
   }
 
   function handleDateAddedKeydown(event: KeyboardEvent) {
@@ -205,10 +206,10 @@
   bind:this={itemDiv}
   id={item.id}
   data-testid="item-{item.id}"
-  class="transition select-none rounded-sm px-2 pt-[0.5px] focus:outline-none
+  class="transition select-none rounded-sm px-2 pt-[0.5px]
     {isSelected ? 'bg-yellow-200' : ''}
     {isExpanded ? 'pb-2' : ''}"
-  tabindex="-1"
+  tabindex="0"
   role="treeitem"
   aria-selected={isSelected}
   aria-expanded={isExpanded}
@@ -219,9 +220,7 @@
     if (event.target !== itemNameInput)
       itemNameInput.blur()
   }}
-  ondblclick={() => {
-    isExpanded = !isExpanded
-  }}
+  ondblclick={() => onToggleExpanded()}
   onblur={() => {
     draftName = item?.name
     isEditingName = false
@@ -244,7 +243,7 @@
         bind:this={itemNameInput}
         bind:textContent={draftName}
         role="textbox"
-        tabindex="-1"
+        tabindex="0"
         contenteditable
         class="rounded-sm decoration-1 focus:outline-none underline-offset-2
           {isEditingName && 'underline'}"
@@ -299,6 +298,7 @@
         onkeydown={stopPropagation(handleDateAddedKeydown)}
         ondblclick={stopPropagation()}
         onblur={changeDate}
+        tabindex={isExpanded ? 0 : -1}
       />
     </div>
     <div role="treeitem" aria-selected="false">
@@ -313,6 +313,7 @@
           item.shelfLife = draftShelfLife
           onUpdate(item)
         }}
+        tabindex={isExpanded ? 0 : -1}
       />
       days
     </div>

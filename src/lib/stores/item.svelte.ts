@@ -12,20 +12,27 @@ export interface ItemStore {
   itemCounts: Record<string, number>
   storageCount: number
   selected: { storage: string, index: number }
+  expanded: boolean
   addStorage: (storage: string) => Promise<void>
   removeStorage: (storage: string) => Promise<void>
   updateStorage: (storage: string, newStorage: string) => Promise<void>
   moveItem: (fromStorage: string, toStorage: string, id: string) => Promise<void>
   selectItem: (storage: string, index: number) => void
   clearSelected: () => void
+  deleteSelected: () => void
+  decrementSelectedQuantity: () => void
+  incrementSelectedQuantity: () => void
+  toggleExpanded: () => void
   storage: (storageName: string) => StorageOperations
 }
 
 interface StorageOperations {
   getItemById: (id: string) => StoredItem | undefined
+  getItemByIndex: (i: number) => StoredItem | undefined
   getItemByName: (name: string) => StoredItem | undefined
   addItem: (item: AddItem) => Promise<void>
-  deleteItem: (id: string) => Promise<void>
+  deleteItemById: (id: string) => Promise<void>
+  deleteItemByIndex: (index: number) => Promise<void>
   updateItem: (item: UpdateItem) => Promise<void>
   sortItems: (sortBy: SortBy) => void
 }
@@ -43,6 +50,7 @@ function createItemStore(): ItemStore {
   })
   const storageCount = $derived(storages.length)
   let selected = $state<{ storage: string, index: number }>({ storage: '', index: -1 })
+  let expanded = $state(false)
 
   async function loadInitialData() {
     const storedItems = await db.foodItems.toArray()
@@ -63,6 +71,7 @@ function createItemStore(): ItemStore {
     get itemCounts() { return itemCounts },
     get storageCount() { return storageCount },
     get selected() { return selected },
+    get expanded() { return expanded },
     async addStorage(storage: string) {
       if (!storages.includes(storage)) {
         storages.push(storage)
@@ -89,12 +98,15 @@ function createItemStore(): ItemStore {
     async moveItem(fromStorage: string, toStorage: string, id: string) {
       const item = this.storage(fromStorage).getItemById(id)
       if (item) {
-        await this.storage(fromStorage).deleteItem(id)
+        await this.storage(fromStorage).deleteItemById(id)
         item.storage = toStorage
         await this.storage(toStorage).addItem(item)
       }
     },
     selectItem(storage: string, index: number) {
+      if (selected.storage !== storage || selected.index !== index)
+        expanded = false
+
       const storageIndex = storages.indexOf(storage)
       if (index < 0) {
         const newStorageIndex = storageIndex - 1 < 0 ? storages.length - 1 : storageIndex - 1
@@ -110,12 +122,33 @@ function createItemStore(): ItemStore {
         selected = { storage, index }
       }
     },
+    toggleExpanded() {
+      expanded = !expanded
+    },
     clearSelected() {
       selected = { storage: '', index: -1 }
+    },
+    deleteSelected() {
+      this.storage(itemStore.selected.storage).deleteItemByIndex(itemStore.selected.index)
+    },
+    decrementSelectedQuantity() {
+      const item = this.storage(itemStore.selected.storage).getItemByIndex(itemStore.selected.index)
+      if (item) {
+        const currentQuantity = item.quantity
+        this.storage(itemStore.selected.storage).updateItem({ ...item, quantity: currentQuantity - 1 })
+      }
+    },
+    incrementSelectedQuantity() {
+      const item = this.storage(itemStore.selected.storage).getItemByIndex(itemStore.selected.index)
+      if (item) {
+        const currentQuantity = item.quantity
+        this.storage(itemStore.selected.storage).updateItem({ ...item, quantity: currentQuantity + 1 })
+      }
     },
     storage(storageName: string): StorageOperations {
       return {
         getItemById: (id: string) => items[storageName]?.find(item => item.id === id),
+        getItemByIndex: (i: number) => items[storageName][i],
         getItemByName: (name: string) => items[storageName]?.find(item => item.name === name),
         async addItem(item: AddItem) {
           if (!storages.includes(storageName))
@@ -132,7 +165,7 @@ function createItemStore(): ItemStore {
               id: uuid(),
               quantity: Math.min(99, item.quantity ?? 1),
               dateAdded: item.dateAdded ?? dayjs().format('YYYY-MM-DD'),
-              shelfLife: item.shelfLife ?? 1,
+              shelfLife: item.shelfLife ?? 5,
               storage: storageName,
             }
 
@@ -140,7 +173,7 @@ function createItemStore(): ItemStore {
             items[storageName].push(newItem)
           }
         },
-        async deleteItem(id: string) {
+        async deleteItemById(id: string) {
           if (items[storageName]) {
             const index = items[storageName].findIndex(item => item.id === id)
             if (index === -1)
@@ -154,12 +187,25 @@ function createItemStore(): ItemStore {
             await db.foodItems.delete(id)
           }
         },
+        async deleteItemByIndex(index: number) {
+          if (!items[storageName])
+            return
+
+          const deletedItem = items[storageName].splice(index, 1)[0]
+
+          if (items[storageName].length === 0)
+            items[storageName] = []
+
+          await db.foodItems.delete(deletedItem.id)
+        },
         async updateItem(item: UpdateItem) {
           if (items[storageName]) {
             const existing = this.getItemById(item.id)
             if (existing) {
               Object.assign(existing, item)
               await db.foodItems.update(item.id, item)
+              if (item.quantity === 0)
+                setTimeout(() => this.deleteItemById(item.id), 400)
             }
           }
         },
