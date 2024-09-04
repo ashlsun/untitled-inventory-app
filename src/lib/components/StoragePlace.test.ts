@@ -32,6 +32,7 @@ vi.mock('$lib/stores/item.svelte', () => {
       itemCounts: {},
       selected: {},
       selectItem: vi.fn(),
+      clearSelected: vi.fn(),
       updateStorage: vi.fn(),
       storage: vi.fn(() => mockStorageOperations),
     },
@@ -88,7 +89,7 @@ describe('storagePlace Component', () => {
     const { getByPlaceholderText } = component
     const input = getByPlaceholderText('Add a new item...')
     await fireEvent.input(input, { target: { value: 'New Item' } })
-    await fireEvent.keyPress(input, { key: 'Enter', code: 13, charCode: 13 })
+    await fireEvent.keyDown(input, { key: 'Enter', code: 13, charCode: 13 })
     expect(itemStore.storage(mockStorageName).addItem).toHaveBeenCalledWith({ name: 'New Item', quantity: 1 })
   })
 
@@ -96,7 +97,7 @@ describe('storagePlace Component', () => {
     const { getByPlaceholderText } = component
     const input = getByPlaceholderText('Add a new item...')
     await fireEvent.input(input, { target: { value: '2 New Item' } })
-    await fireEvent.keyPress(input, { key: 'Enter', code: 13, charCode: 13 })
+    await fireEvent.keyDown(input, { key: 'Enter', code: 13, charCode: 13 })
     expect(itemStore.storage(mockStorageName).addItem).toHaveBeenCalledWith({ name: 'New Item', quantity: 2 })
   })
 
@@ -104,7 +105,7 @@ describe('storagePlace Component', () => {
     const { getByPlaceholderText } = component
     const input = getByPlaceholderText('Add a new item...') as HTMLInputElement
     await fireEvent.input(input, { target: { value: 'New Item' } })
-    await fireEvent.keyPress(input, { key: 'Enter', code: 13, charCode: 13 })
+    await fireEvent.keyDown(input, { key: 'Enter', code: 13, charCode: 13 })
     expect(input.value).toBe('')
   })
 
