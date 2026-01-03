@@ -1,30 +1,99 @@
-import { v7 as uuid } from 'uuid'
 import dayjs from 'dayjs'
-import { possibleItems } from '$lib/components/item/itemGenerator'
 import type { StoredItem } from '$lib/types'
-import { db } from '$lib/db'
+import { supabase, type FoodItemRow, type FoodItemInsert, type FoodItemUpdate } from '$lib/supabase'
 
 export interface ItemStore {
   readonly list: StoredItem[]
-  add: (name: string) => void
-  delete: (id: string) => void
+  readonly loading: boolean
+  add: (name: string) => Promise<void>
+  delete: (id: string) => Promise<void>
   readonly selected: number
   select: (i: number) => void
-  update: (id: string, item: StoredItem) => void
-  importItem: (item: StoredItem) => void
+  update: (id: string, item: StoredItem) => Promise<void>
+  importItem: (item: StoredItem) => Promise<void>
 }
 
-export async function createItemStore(storagePlaceName: string) {
-  const items = await db.foodItems.where('storage').equals(storagePlaceName).toArray()
+// Map from Supabase snake_case to our camelCase
+function mapFromDb(row: FoodItemRow): StoredItem {
+  return {
+    id: row.id,
+    name: row.name,
+    quantity: row.quantity,
+    dateAdded: row.date_added,
+    storage: row.storage,
+    shelfLife: row.shelf_life,
+  }
+}
 
-  const list = $state<StoredItem[]>(items)
+export async function createItemStore(storagePlaceName: string, userId: string): Promise<ItemStore> {
+  const list = $state<StoredItem[]>([])
   let selected = $state(-1)
+  let loading = $state(true)
+
+  // Initial fetch
+  const { data, error } = await supabase
+    .from('food_items')
+    .select('*')
+    .eq('storage', storagePlaceName)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching items:', error)
+  }
+  else if (data) {
+    list.push(...data.map(mapFromDb))
+  }
+  loading = false
+
+  // Subscribe to real-time changes
+  const channel = supabase
+    .channel(`food_items_${storagePlaceName}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'food_items',
+        filter: `storage=eq.${storagePlaceName}`,
+      },
+      (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const newItem = mapFromDb(payload.new as Parameters<typeof mapFromDb>[0])
+          // Only add if not already in list (we may have optimistically added it)
+          if (!list.find(item => item.id === newItem.id)) {
+            list.push(newItem)
+          }
+        }
+        else if (payload.eventType === 'UPDATE') {
+          const updatedItem = mapFromDb(payload.new as Parameters<typeof mapFromDb>[0])
+          const index = list.findIndex(item => item.id === updatedItem.id)
+          if (index !== -1) {
+            list[index] = updatedItem
+          }
+        }
+        else if (payload.eventType === 'DELETE') {
+          const deletedId = (payload.old as { id: string }).id
+          const index = list.findIndex(item => item.id === deletedId)
+          if (index !== -1) {
+            list.splice(index, 1)
+            if (selected >= list.length) {
+              selected = Math.max(0, list.length - 1)
+            }
+          }
+        }
+      },
+    )
+    .subscribe()
 
   return {
     get list() {
       return list
     },
-    add(input: string) {
+    get loading() {
+      return loading
+    },
+    async add(input: string) {
       if (input === '')
         return
 
@@ -37,40 +106,114 @@ export async function createItemStore(storagePlaceName: string) {
         quantity = Math.min(Number(itemList[0]), 99)
       }
 
-      const newItem: StoredItem = {
-        id: uuid(), // Generate UUID here
+      const insertData: FoodItemInsert = {
+        user_id: userId,
         name,
         quantity,
-        dateAdded: dayjs().format('YYYY-MM-DD'),
-        shelfLife: 5,
+        date_added: dayjs().format('YYYY-MM-DD'),
+        shelf_life: 5,
         storage: storagePlaceName,
       }
 
-      db.foodItems.add(newItem)
-      list.push(newItem)
-      selected = list.length
+      const { data, error } = await supabase
+        .from('food_items')
+        .insert(insertData)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error adding item:', error)
+        return
+      }
+
+      // Optimistically add to list (real-time will dedupe)
+      if (data) {
+        const newItem = mapFromDb(data)
+        if (!list.find(item => item.id === newItem.id)) {
+          list.push(newItem)
+        }
+        selected = list.length - 1
+      }
     },
-    importItem(item: StoredItem) {
+
+    async importItem(item: StoredItem) {
       if (item.storage !== storagePlaceName)
         throw new Error(`Imported item's storage ${item.storage} did not match destination ${storagePlaceName}`)
 
-      db.foodItems.add(item)
-      list.push(item)
-      selected = list.length
-    },
-    delete(id: string) {
-      db.foodItems.delete(id)
+      const insertData: FoodItemInsert = {
+        user_id: userId,
+        name: item.name,
+        quantity: item.quantity,
+        date_added: item.dateAdded,
+        shelf_life: item.shelfLife,
+        storage: item.storage,
+      }
 
+      const { data, error } = await supabase
+        .from('food_items')
+        .insert(insertData)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error importing item:', error)
+        return
+      }
+
+      if (data) {
+        const newItem = mapFromDb(data)
+        if (!list.find(i => i.id === newItem.id)) {
+          list.push(newItem)
+        }
+        selected = list.length - 1
+      }
+    },
+
+    async delete(id: string) {
+      // Optimistically remove from list
       const index = list.findIndex(item => item.id === id)
       if (index !== -1) {
         list.splice(index, 1)
-        if (selected >= list.length)
+        if (selected >= list.length) {
           selected = Math.max(0, list.length - 1)
+        }
+      }
+
+      const { error } = await supabase
+        .from('food_items')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error deleting item:', error)
       }
     },
-    update(id: string, item: StoredItem) {
-      db.foodItems.update(item.id, item)
+
+    async update(id: string, item: StoredItem) {
+      // Optimistically update in list
+      const index = list.findIndex(i => i.id === id)
+      if (index !== -1) {
+        list[index] = item
+      }
+
+      const updateData: FoodItemUpdate = {
+        name: item.name,
+        quantity: item.quantity,
+        date_added: item.dateAdded,
+        shelf_life: item.shelfLife,
+        storage: item.storage,
+      }
+
+      const { error } = await supabase
+        .from('food_items')
+        .update(updateData)
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error updating item:', error)
+      }
     },
+
     get selected() {
       return selected
     },
